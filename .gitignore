@@ -1,0 +1,15 @@
+# Ignore node_modules and TypeScript output
+node_modules/
+server/static/js/*
+
+# Ignore compiled Go binaries
+*.exe
+*.exe~
+*.out
+*.log
+
+# Ignore editor-specific files
+.DS_Store
+.idea/
+.vscode/
+*.swp
