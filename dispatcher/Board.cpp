@@ -52,7 +52,7 @@ void Board::prettyPrint(Board board) {
     cout << "     " << "---------------";
     for (int i = 0; i < 64; i++) {
         if (i % 8 == 0) {
-            cout << endl << "  " << (i / 8) + 1 << "| ";
+            cout << endl << "  " << 8 - (i / 8) << "| ";
         }
         cout << textBoard[i] << " ";
     }
