@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"server/handlers"
+    "server/handlers"
 )
 
 func main() {

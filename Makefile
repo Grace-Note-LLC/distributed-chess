@@ -1,7 +1,7 @@
 # Variables
-GO_CMD := go run server/main.go
+GO_CMD := go run main.go
 NPM_CMD := npm install --prefix frontend
-TSC := npx tsc -p frontend/tsconfig.json
+TSC := npx tsc -p tsconfig.json
 
 # Install npm dependencies
 install-deps:
@@ -9,11 +9,11 @@ install-deps:
 
 # Compile TypeScript using tsconfig.json in static folder
 build-ts:
-	$(TSC)
+	cd frontend && $(TSC)
 
 # Run the Go server
 run-server:
-	$(GO_CMD)
+	cd server && $(GO_CMD) 
 
 # Build TypeScript and run server
 start: build-ts run-server
