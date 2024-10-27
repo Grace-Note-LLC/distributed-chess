@@ -60,7 +60,8 @@ public:
     uint64_t& getPiece(PieceIndex index) { return pieces[index]; }
     std::vector<PieceIndex> getPieceIndices() { return pivec; }
     char pieceAsASCII(PieceIndex index);
-    
+
+    // bool isValidMove(PieceIndex index, );
 
 private:
     std::vector<uint64_t> pieces = std::vector<uint64_t>(12, 0);
