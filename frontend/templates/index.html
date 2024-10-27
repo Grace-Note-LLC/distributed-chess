@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
+   
     <h1>Welcome to My Website!</h1>
     <p>This website is powered by Go.</p>
 
@@ -17,5 +18,106 @@
     <p id="apiResponse"></p>
 
     <script src="/static/js/main.js" type="module"></script>
+
+
+    <div class = "chessboard">
+        <div class = "a" >&#9814</div>
+        <div class = "b" >&#9816</div>
+        <div class = "a" >&#9815</div>
+        <div class = "b" >&#9812</div>
+        <div class = "a" >&#9813</div>
+        <div class = "b" >&#9815</div>
+        <div class = "a" >&#9816</div>
+        <div class = "b" >&#9814</div>
+
+        <div class = "b">&#9817</div>
+        <div class = "a">&#9817</div>
+        <div class = "b">&#9817</div>
+        <div class = "a">&#9817</div>
+        <div class = "b">&#9817</div>
+        <div class = "a">&#9817</div>
+        <div class = "b">&#9817</div>
+        <div class = "a">&#9817</div>
+
+        <div class = "a" ></div>
+        <div class = "b" ></div>
+        <div class = "a" ></div>
+        <div class = "b" ></div>
+        <div class = "a" ></div>
+        <div class = "b" ></div>
+        <div class = "a" ></div>
+        <div class = "b" ></div>
+
+        <div class = "b"></div>
+        <div class = "a"></div>
+        <div class = "b"></div>
+        <div class = "a"></div>
+        <div class = "b"></div>
+        <div class = "a"></div>
+        <div class = "b"></div>
+        <div class = "a"></div>
+
+        <div class = "a" ></div>
+        <div class = "b" ></div>
+        <div class = "a" ></div>
+        <div class = "b" ></div>
+        <div class = "a" ></div>
+        <div class = "b" ></div>
+        <div class = "a" ></div>
+        <div class = "b" ></div>
+
+        <div class = "b"></div>
+        <div class = "a"></div>
+        <div class = "b"></div>
+        <div class = "a"></div>
+        <div class = "b"></div>
+        <div class = "a"></div>
+        <div class = "b"></div>
+        <div class = "a"></div>
+
+        <div class = "a" >&#9823</div>
+        <div class = "b" >&#9823</div>
+        <div class = "a" >&#9823</div>
+        <div class = "b" >&#9823</div>
+        <div class = "a" >&#9823</div>
+        <div class = "b" >&#9823</div>
+        <div class = "a" >&#9823</div>
+        <div class = "b" >&#9823</div>
+
+        <div class = "b">&#9820</div>
+        <div class = "a">&#9822</div>
+        <div class = "b">&#9821</div>
+        <div class = "a">&#9818</div>
+        <div class = "b">&#9819</div>
+        <div class = "a">&#9821</div>
+        <div class = "b">&#9822</div>
+        <div class = "a">&#9820</div>
+    </div>
+    <div class = "button-container">
+        
+        <button class = "button white-btn" onclick= "chooseSide('white')">Play as White</button>
+        <button class = "button black-btn" onclick = "chooseSide('black')">Play as Black</button>
+    </div>
+
+    <div>
+
+        <p id="chosenSideText">Pick a side: White or Black</p>
+
+        <script>
+
+    
+            function chooseSide(side) {
+                const chosenSideText = document.getElementById("chosenSideText");
+                chosenSideText.textContent = `You chose to play as ${side}!`;
+                // Add logic here to set up the game with the chosen side
+        }
+    
+    
+        </script>
+    </div>
+
 </body>
 </html>
+
+
+
