@@ -21,7 +21,7 @@ func main() {
 }
 
 func registerRoutes() {
-    fs := http.FileServer(http.Dir("./static"))
+    fs := http.FileServer(http.Dir("../frontend/static"))
     http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	// index page
@@ -32,7 +32,7 @@ func registerRoutes() {
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
-    tmpl, err := template.ParseFiles(filepath.Join("templates", "index.html"))
+    tmpl, err := template.ParseFiles(filepath.Join("../frontend/templates", "index.html"))
     if err != nil {
         http.Error(w, "Could not load template", http.StatusInternalServerError)
         return
