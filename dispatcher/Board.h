@@ -26,7 +26,7 @@ The board is represented as follows:
     2\  I J K L M N O P
     1\  A B C D E F G H
 
-For example, we can represent a black pawn on as 0x00000000000000F0
+For example, we can represent a black pawn on as 0x0000000000000FF0
 in which the row (or rank) 2 is filled with 1s, indicating the presence of
 a black pawn. The rest of the board is empty.
 */
