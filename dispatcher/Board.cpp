@@ -40,22 +40,25 @@ void Board::prettyPrint(Board board) {
     for (int i = 0; i < 64; i++) textBoard.push_back(' ');
 
     for (Board::PieceIndex piece : Board::getPieceIndices()) {
+        if (Board::getPiece(piece) == 0) continue;
         for (int i = 0; i < 64; i++) {
             uint64_t mask = 1ULL << i;
             if ((mask & Board::getPiece(piece)) > 0) {
-                textBoard[i] = pieceAsASCII(piece);
+                textBoard[63 - i] = pieceAsASCII(piece); 
+                // needs to be 63 - i because the board is printed from top to bottom
             }
         }
     }
 
     cout << "     " << "A B C D E F G H" << endl;
     cout << "     " << "---------------";
-    for (int i = 0; i < 64; i++) {
-        if (i % 8 == 0) {
-            cout << endl << "  " << 8 - (i / 8) << "| ";
+    for (int rank = 7; rank >= 0; rank--) {
+        cout << endl << "  " << rank << "| ";
+        for (int file = 0; file < 8; file++) {
+            cout << textBoard[(rank * 8) + file] << " ";
         }
-        cout << textBoard[i] << " ";
     }
+    cout << endl;
 }
 
 

@@ -1,6 +1,19 @@
+#include <tuple>
+
 #include "Move.h"
 #include "Board.h"
 
+#include <iostream>
+using namespace std;
+
+const uint64_t A1 = 0x8000000000000000;
+
+Move::Move(Board::PieceIndex pieceType, uint64_t newPosition, bool isCapture, Board *prevBoard) {
+    this->newPosition = newPosition;
+    this->pieceType = pieceType;
+    this->capture = isCapture;
+    this->prevBoard = prevBoard;
+}
 
 std::vector<Move> MoveGenerator::generatePieceMoves(Board::PieceIndex pieceType) {
     std::vector<Move> moves;
@@ -80,73 +93,61 @@ std::vector<Move> MoveGenerator::generateQueenMoves(Board::PieceIndex pieceType)
 
 std::vector<Move> MoveGenerator::generateKingMoves(Board::PieceIndex pieceType) {
     std::vector<Move> moves;
-    if (pieceType == Board::WHITE_KING) {
-        // get king position
-        // generate 8 surrounding moves
-        // check if cannot capture
-        // return into moves
-
-        uint64_t kingPiece = this->board->WHITE_KING;
-        auto rankfile = binIdxToGrid(kingPiece);
-        int rank = std::get<0>(rankfile);
-        int file = std::get<1>(rankfile);
-        tileState ourColor = static_cast<tileState>(pieceType % 2);
-
-        // cardinals
-        // right
-
-        if (file != 7) {
-            uint64_t proposedMove = this->board->WHITE_KING >> 1;
-            auto occupant = getOccupant(pieceType, proposedMove);
-        }
-
-
-        // top
-        if (rank != 7) {
-            uint64_t proposedMove = this->board->WHITE_KING << 8;
-        }
-        
-        // left
-        if (file != 0) {
-            uint64_t proposedMove = this->board->WHITE_KING >> 1;
-        }
-        // bottom
-        if (rank != 0) {
-            uint64_t proposedMove = this->board->WHITE_KING >> 8;
-        }
-
-
-        // diagonals
-
-        
-
-
-
-        return moves;
+    uint64_t piece = this->board->getPiece(pieceType);
+    auto rankfile = binIdxToGrid(piece);
+    int rank = std::get<0>(rankfile);
+    int file = std::get<1>(rankfile);
+    for (const auto& os : kingOffsets) {
+        addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
     }
-
-    if (pieceType == Board::BLACK_KING) {
-
-        return moves;
-    }
+    return moves;
 }
 
-
-
-MoveGenerator::tileState MoveGenerator::getOccupant(
-    Board::PieceIndex pieceType, 
-    uint64_t proposedMove) {
-
-    // true = white
-    // false = black
-        
+MoveGenerator::tileState MoveGenerator::getOccupant(Board::PieceIndex pieceType, uint64_t proposedMove) {
     for (int i = 0; i < 12; i++) {
-        uint64_t piece = (this->board->getPieces())[i][0];
+        if (i == pieceType) { continue; }
+        uint64_t piece = this->board->getPieces()->at(i);
         if ((proposedMove & piece)) {
             return i % 2 == 0 ? WHITE : BLACK;
         }
     }
-    
     return MoveGenerator::EMPTY;
+}
 
+void MoveGenerator::addMoveIfValid(
+    std::vector<Move>& moves, 
+    Board::PieceIndex pieceType, 
+    int newRank, 
+    int newFile) {
+    
+    // cout << "Rank: " << rank << " File: " << file << endl;
+    // cout << piece << endl;
+    tileState pieceColor = static_cast<tileState>(pieceType % 2);
+    if (newRank >= 0 && newRank < 8 && newFile >= 0 && newFile < 8) {
+        uint64_t proposedMove = A1 >> (newRank * 8 + newFile);        
+        auto occupant = getOccupant(pieceType, proposedMove);
+        if (occupant == pieceColor) { return; }
+        // cout << "here!" << endl;
+        moves.push_back(Move(pieceType, proposedMove, occupant != EMPTY, this->board));
+    }
+}
+
+/*
+Converts a binary index to a grid index (rank, file).
+
+Function `__builtin_ctzll` counts the number of trailing 
+zeros in a 64-bit integer. This is used to determine the
+index of the piece in the board.
+*/
+std::tuple<int, int> MoveGenerator::binIdxToGrid(uint64_t bin) {
+    int index = __builtin_ctzll(bin); 
+    return std::make_tuple(index / 8ULL, index % 8ULL);
+}
+
+uint64_t MoveGenerator::gridToBinIdx(std::tuple<int, int> twoDIndex) {
+    return gridToBinIdx(std::get<0>(twoDIndex), std::get<1>(twoDIndex));
+}
+
+uint64_t MoveGenerator::gridToBinIdx(int rank, int file) {
+    return rank * 8 + file;
 }
