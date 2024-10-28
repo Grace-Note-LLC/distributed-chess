@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Board.h"
+#include "Move.h"
 
 int main() {
     
