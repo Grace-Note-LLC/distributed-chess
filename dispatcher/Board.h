@@ -9,7 +9,7 @@ unfolded to an 8x8 grid. The MSB is the bottom left corner of the board (A1), an
 the LSB is the top right (H8). The board is represented as follows: 
 
 Given a uint64_t,
-    A1                                                            H8
+    A0                                                            H7
         ____    ____    ____    ____    ____    ____    ____    ____    
     ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
 
@@ -17,14 +17,14 @@ The board is represented as follows:
 
         A B C D E F G H
         ---------------
-    8\  4 5 6 7 8 9 + /
-    7\  w x y z 0 1 2 3
-    6\  o p q r s t u v
-    5\  g h i j k l m n
-    4\  Y Z a b c d e f
-    3\  Q R S T U V W X
-    2\  I J K L M N O P
-    1\  A B C D E F G H
+    7\  4 5 6 7 8 9 + /
+    6\  w x y z 0 1 2 3
+    5\  o p q r s t u v
+    4\  g h i j k l m n
+    3\  Y Z a b c d e f
+    2\  Q R S T U V W X
+    1\  I J K L M N O P
+    0\  A B C D E F G H
 
 For example, we can represent a black pawn on as 0x0000000000000FF0
 in which the row (or rank) 2 is filled with 1s, indicating the presence of
@@ -65,7 +65,7 @@ public:
     void setPieceBin(PieceIndex index, uint64_t piece) { pieces[index] = piece; }
     
     void setPieceRF(PieceIndex index, int rank, int file) { 
-        pieces[index] |= 1ULL << (63 - (rank * 8 + file)); 
+        pieces[index] |= 1ULL << (rank * 8 + file); 
     }
 
 private:

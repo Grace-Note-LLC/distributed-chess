@@ -35,7 +35,7 @@ setup: install-deps build-ts run-server
 
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall
+CXXFLAGS = -std=c++11 -Wall -g -ftrapv
 
 # Directories
 SRC_DIR = dispatcher
@@ -54,7 +54,7 @@ $(BUILD_DIR):
 
 # Compile test executable
 test: $(BUILD_DIR) $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(BUILD_DIR)/test -g
+	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(BUILD_DIR)/test
 
 # Compile .cpp files to .o files in the build directory
 $(BUILD_DIR)/Board.o: $(SRC_DIR)/Board.cpp | $(BUILD_DIR)

@@ -121,15 +121,6 @@ Expected output: "Moves.size(): 0"
 void testKingMoveGeneration_blockedSameColor() {
     Board board;
     board.setPieceRF(Board::WHITE_KING, 4, 4);
-    // board.setPieceRF(Board::WHITE_PAWNS, 3, 3);
-    // board.setPieceRF(Board::WHITE_PAWNS, 3, 4);
-    // board.setPieceRF(Board::WHITE_PAWNS, 3, 5);
-    // board.setPieceRF(Board::WHITE_PAWNS, 4, 3);
-    // board.setPieceRF(Board::WHITE_PAWNS, 4, 5);
-    // board.setPieceRF(Board::WHITE_PAWNS, 5, 3);
-    // board.setPieceRF(Board::WHITE_PAWNS, 5, 4);
-    // board.setPieceRF(Board::WHITE_PAWNS, 5, 5);
-    // board.prettyPrint();
     MoveGenerator moveGen(&board);
     unsigned long long orv = 0ULL;
     orv |= moveGen.gridToBinIdx(3, 3);
@@ -156,13 +147,15 @@ void testKingMoveGeneration_blockedSameColorCorner() {
     board.setPieceRF(Board::WHITE_PAWNS, 0, 1);
     board.setPieceRF(Board::WHITE_PAWNS, 1, 1);
 
+    // cout << std::bitset<64>(board.getPiece(Board::WHITE_PAWNS)) << endl;
     board.prettyPrint();
+
     MoveGenerator moveGen(&board);
     std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_KING);
-    for (auto move : moves) {
-        auto rankfile = moveGen.binIdxToGrid(move.getNewPosition());
-        cout << std::get<0>(rankfile) << "," << std::get<1>(rankfile) << endl;
-    }
+    // for (auto move : moves) {
+        // auto rankfile = moveGen.binIdxToGrid(move.getNewPosition());
+        // cout << std::get<0>(rankfile) << "," << std::get<1>(rankfile) << endl;
+    // }
 
     cout << "Moves.size(): " << moves.size() << endl;
 }
@@ -189,8 +182,8 @@ int main() {
     // testKingMoveGeneration_edges();
     // testKingMoveGeneration_corners();
     // test_gridToBinIdx();
-    // testKingMoveGeneration_blockedSameColor();
-    testKingMoveGeneration_blockedSameColorCorner();
+    testKingMoveGeneration_blockedSameColor();
+    // testKingMoveGeneration_blockedSameColorCorner();
 
     return 0;
 }

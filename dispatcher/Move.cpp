@@ -1,4 +1,5 @@
 #include <tuple>
+#include <bitset>
 
 #include "Move.h"
 #include "Board.h"
@@ -108,10 +109,12 @@ MoveGenerator::tileState MoveGenerator::getOccupant(Board::PieceIndex pieceType,
     for (int i = 0; i < 12; i++) {
         if (i == pieceType) { continue; }
         uint64_t piece = pieces->at(i);
-        if ((proposedMove & piece)) {
-            auto piec = binIdxToGrid(piece);
-            cout << std::get<0>(piec) << "," << std::get<1>(piec) << endl;
-            cout << "piece collision:" << i << endl;
+        if (piece == 0ULL) { continue; }
+
+        if ((proposedMove & piece) > 0) {
+            // auto piec = binIdxToGrid(piece);
+            // cout << std::get<0>(piec) << "," << std::get<1>(piec) << endl;
+            // cout << "piece collision:" << i << endl;
             return i % 2 == 0 ? WHITE : BLACK;
         }
     }
@@ -153,5 +156,5 @@ uint64_t MoveGenerator::gridToBinIdx(std::tuple<int, int> twoDIndex) {
 }
 
 uint64_t MoveGenerator::gridToBinIdx(int rank, int file) {
-    return 1ULL << (63 - (rank * 8 + file));
+    return 1ULL << (rank * 8 + file);
 }
