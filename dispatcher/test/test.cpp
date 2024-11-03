@@ -205,6 +205,19 @@ void testKingMoveGeneration_mixedColors() {
     cout << "Moves.size(): " << moves.size() << endl;
 }
 
+void testBishopMoveGeneration() {
+    Board board;
+    board.fillEmpty();
+    board.setPieceRF(Board::WHITE_BISHOPS, 4, 4);
+    board.prettyPrint();
+    MoveGenerator moveGen(&board);
+    std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_BISHOPS);
+    for (const auto& move : moves) {
+        auto rankfile = moveGen.binIdxToGrid(move.getNewPosition());
+        cout << "Rank: " << std::get<0>(rankfile) << " File: " << std::get<1>(rankfile) << endl;
+    }
+}
+
 void test_gridToBinIdx() {
     MoveGenerator moveGen(nullptr);
     for (int rank = 0; rank < 8; rank++) {
@@ -222,7 +235,7 @@ int main() {
     // testAllPositionsRF();
     // testAllPositionsBin();
     // testKingMoveGeneration_alldirections();
-    testKingMoveGeneration_alldirections_everywhere();
+    // testKingMoveGeneration_alldirections_everywhere();
     // testKingMoveGeneration_edges();
     // testKingMoveGeneration_corners();
     // test_gridToBinIdx();
@@ -230,6 +243,7 @@ int main() {
     // testKingMoveGeneration_blockedSameColorCorner();
     // testKingMoveGeneration_blockedDiffColor();
     // testKingMoveGeneration_mixedColors();
+    testBishopMoveGeneration();
 
     return 0;
 }
