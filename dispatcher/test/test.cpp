@@ -160,6 +160,50 @@ void testKingMoveGeneration_blockedSameColorCorner() {
     cout << "Moves.size(): " << moves.size() << endl;
 }
 
+/*
+Test move generation for KING surrounded by different COLOR pieces
+KING @ (3, 3)
+PAWNS @ (2, 2), (2, 3), (2, 4), (3, 2), (3, 4), (4, 2), (4, 3), (4, 4)
+
+Expected output: "Moves.size(): 8"
+*/
+void testKingMoveGeneration_blockedDiffColor() {
+    Board board;
+    board.setPieceRF(Board::WHITE_KING, 3, 3);
+    
+    board.setPieceRF(Board::BLACK_PAWNS, 2, 2);
+    board.setPieceRF(Board::BLACK_PAWNS, 2, 3);
+    board.setPieceRF(Board::BLACK_PAWNS, 2, 4);
+    board.setPieceRF(Board::BLACK_PAWNS, 3, 2);
+    board.setPieceRF(Board::BLACK_PAWNS, 3, 4);
+    board.setPieceRF(Board::BLACK_PAWNS, 4, 2);
+    board.setPieceRF(Board::BLACK_PAWNS, 4, 3);
+    board.setPieceRF(Board::BLACK_PAWNS, 4, 4);
+    board.prettyPrint();
+
+    MoveGenerator moveGen(&board);
+    std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_KING);
+    cout << "Moves.size(): " << moves.size() << endl;
+}
+
+void testKingMoveGeneration_mixedColors() {
+    Board board;
+    board.setPieceRF(Board::WHITE_KING, 3, 3);
+
+    board.setPieceRF(Board::WHITE_PAWNS, 2, 2);
+    board.setPieceRF(Board::BLACK_PAWNS, 2, 3);
+    board.setPieceRF(Board::WHITE_PAWNS, 2, 4);
+    board.setPieceRF(Board::BLACK_PAWNS, 3, 2);
+    board.setPieceRF(Board::BLACK_PAWNS, 3, 4);
+    board.setPieceRF(Board::WHITE_PAWNS, 4, 2);
+    board.setPieceRF(Board::BLACK_PAWNS, 4, 3);
+    board.setPieceRF(Board::WHITE_PAWNS, 4, 4);
+    board.prettyPrint();
+
+    MoveGenerator moveGen(&board);
+    std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_KING);
+    cout << "Moves.size(): " << moves.size() << endl;
+}
 
 void test_gridToBinIdx() {
     MoveGenerator moveGen(nullptr);
@@ -182,8 +226,10 @@ int main() {
     // testKingMoveGeneration_edges();
     // testKingMoveGeneration_corners();
     // test_gridToBinIdx();
-    testKingMoveGeneration_blockedSameColor();
+    // testKingMoveGeneration_blockedSameColor();
     // testKingMoveGeneration_blockedSameColorCorner();
+    // testKingMoveGeneration_blockedDiffColor();
+    testKingMoveGeneration_mixedColors();
 
     return 0;
 }
