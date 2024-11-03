@@ -267,6 +267,45 @@ void testBishopMoveGeneration_all() {
     }
 }
 
+void testRookMoveGeneration_all() {
+    Board board;
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            board.setPieceRF(Board::WHITE_ROOKS, rank, file);
+            MoveGenerator moveGen(&board);
+            std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_ROOKS);
+            cout << "(" << rank << "," << file << "): " << "moves.size(): " << moves.size() << endl;
+            board.fillEmpty();
+        }
+    }
+}
+
+void testKnightMoveGeneration_all() {
+    Board board;
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            board.setPieceRF(Board::WHITE_KNIGHTS, rank, file);
+            MoveGenerator moveGen(&board);
+            std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_KNIGHTS);
+            cout << "(" << rank << "," << file << "): " << "moves.size(): " << moves.size() << endl;
+            board.fillEmpty();
+        }
+    }
+}
+
+void testQueenMoveGeneration_all() {
+    Board board;
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            board.setPieceRF(Board::WHITE_QUEEN, rank, file);
+            MoveGenerator moveGen(&board);
+            std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_QUEEN);
+            cout << "(" << rank << "," << file << "): " << "moves.size(): " << moves.size() << endl;
+            board.fillEmpty();
+        }
+    }
+}
+
 void test_gridToBinIdx() {
     MoveGenerator moveGen(nullptr);
     for (int rank = 0; rank < 8; rank++) {
@@ -295,7 +334,10 @@ int main() {
     // testBishopMoveGeneration();
     // testBishopMoveGeneration_corners();
     // testBishopMoveGeneration_edges();
-    testBishopMoveGeneration_all();
+    // testBishopMoveGeneration_all();
+    // testRookMoveGeneration_all();
+    // testKnightMoveGeneration_all();
+    testQueenMoveGeneration_all();
 
     return 0;
 }

@@ -74,7 +74,42 @@ private:
         {-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7}
     };
 
+    std::pair<int, int> rookOffsets[28] = {
+        // Right (positive x)
+        {1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0}, {6, 0}, {7, 0},
+        // Left (negative x)
+        {-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}, {-6, 0}, {-7, 0},
+        // Up (positive y)
+        {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7},
+        // Down (negative y)
+        {0, -1}, {0, -2}, {0, -3}, {0, -4}, {0, -5}, {0, -6}, {0, -7}
+    };
 
+    std::pair<int, int> knightOffsets[8] = {
+        {2, 1}, {1, 2}, {-1, 2}, {-2, 1},
+        {-2, -1}, {-1, -2}, {1, -2}, {2, -1}
+    };
+
+    std::pair<int, int> queenOffsets[56] = {
+        // Combine rook and bishop offsets for queen
+        // Up-Right (positive x, positive y)
+        {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7},
+        // Up-Left (positive x, negative y)
+        {1, -1}, {2, -2}, {3, -3}, {4, -4}, {5, -5}, {6, -6}, {7, -7},
+        // Down-Right (negative x, positive y)
+        {-1, 1}, {-2, 2}, {-3, 3}, {-4, 4}, {-5, 5}, {-6, 6}, {-7, 7},
+        // Down-Left (negative x, negative y)
+        {-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7},
+        // Right (positive x)
+        {1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0}, {6, 0}, {7, 0},
+        // Left (negative x)
+        {-1, 0}, {-2, 0}, {-3, 0}, {-4, 0}, {-5, 0}, {-6, 0}, {-7, 0},
+        // Up (positive y)
+        {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {0, 6}, {0, 7},
+        // Down (negative y)
+        {0, -1}, {0, -2}, {0, -3}, {0, -4}, {0, -5}, {0, -6}, {0, -7}
+    };
+    
     // Helper functions to generate moves for each piece type
     std::vector<Move> generatePawnMoves(Board::PieceIndex pieceType);
     std::vector<Move> generateRookMoves(Board::PieceIndex pieceType);
