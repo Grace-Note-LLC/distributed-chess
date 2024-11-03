@@ -222,14 +222,14 @@ int main() {
     // testAllPositionsRF();
     // testAllPositionsBin();
     // testKingMoveGeneration_alldirections();
-    // testKingMoveGeneration_alldirections_everywhere();
+    testKingMoveGeneration_alldirections_everywhere();
     // testKingMoveGeneration_edges();
     // testKingMoveGeneration_corners();
     // test_gridToBinIdx();
     // testKingMoveGeneration_blockedSameColor();
     // testKingMoveGeneration_blockedSameColorCorner();
     // testKingMoveGeneration_blockedDiffColor();
-    testKingMoveGeneration_mixedColors();
+    // testKingMoveGeneration_mixedColors();
 
     return 0;
 }

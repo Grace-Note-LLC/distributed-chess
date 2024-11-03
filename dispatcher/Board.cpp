@@ -39,7 +39,7 @@ void Board::prettyPrint() {
     vector<char> textBoard;
     for (int i = 0; i < 64; i++) textBoard.push_back(' ');
 
-    for (Board::PieceIndex piece : Board::getPieceIndices()) {
+    for (Board::PieceIndex piece : pivec) {
         if (Board::getPiece(piece) == 0) continue;
         for (int i = 0; i < 64; i++) {
             uint64_t mask = 1ULL << i;
@@ -65,17 +65,16 @@ void Board::prettyPrint() {
 Generate the standard chess board.
 */
 void Board::fillStandard() {
-    std::vector<uint64_t>* pieces = Board::getPieces();
-    (*pieces)[0] = 0x00FF000000000000;  // WHITE_PAWNS
-    (*pieces)[1] = 0x000000000000FF00;  // BLACK_PAWNS
-    (*pieces)[2] = 0x8100000000000000;  // WHITE_ROOKS
-    (*pieces)[3] = 0x0000000000000081;  // BLACK_ROOKS
-    (*pieces)[4] = 0x4200000000000000;  // WHITE_KNIGHTS
-    (*pieces)[5] = 0x0000000000000042;  // BLACK_KNIGHTS
-    (*pieces)[6] = 0x2400000000000000;  // WHITE_BISHOPS
-    (*pieces)[7] = 0x0000000000000024;  // BLACK_BISHOPS
-    (*pieces)[8] = 0x0800000000000000;  // WHITE_QUEEN
-    (*pieces)[9] = 0x0000000000000008;  // BLACK_QUEEN
-    (*pieces)[10] = 0x1000000000000000; // WHITE_KING
-    (*pieces)[11] = 0x0000000000000010; // BLACK_KING
+    pieces[0] = 0x00FF000000000000;  // WHITE_PAWNS
+    pieces[1] = 0x000000000000FF00;  // BLACK_PAWNS
+    pieces[2] = 0x8100000000000000;  // WHITE_ROOKS
+    pieces[3] = 0x0000000000000081;  // BLACK_ROOKS
+    pieces[4] = 0x4200000000000000;  // WHITE_KNIGHTS
+    pieces[5] = 0x0000000000000042;  // BLACK_KNIGHTS
+    pieces[6] = 0x2400000000000000;  // WHITE_BISHOPS
+    pieces[7] = 0x0000000000000024;  // BLACK_BISHOPS
+    pieces[8] = 0x0800000000000000;  // WHITE_QUEEN
+    pieces[9] = 0x0000000000000008;  // BLACK_QUEEN
+    pieces[10] = 0x1000000000000000; // WHITE_KING
+    pieces[11] = 0x0000000000000010; // BLACK_KING
 }
