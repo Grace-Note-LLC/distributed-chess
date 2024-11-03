@@ -1,4 +1,5 @@
 #include <tuple>
+#include <bitset>
 
 #include "Move.h"
 #include "Board.h"
@@ -104,10 +105,16 @@ std::vector<Move> MoveGenerator::generateKingMoves(Board::PieceIndex pieceType) 
 }
 
 MoveGenerator::tileState MoveGenerator::getOccupant(Board::PieceIndex pieceType, uint64_t proposedMove) {
+    auto pieces = this->board->getPieces();
     for (int i = 0; i < 12; i++) {
         if (i == pieceType) { continue; }
-        uint64_t piece = this->board->getPieces()->at(i);
-        if ((proposedMove & piece)) {
+        uint64_t piece = pieces->at(i);
+        if (piece == 0ULL) { continue; }
+
+        if ((proposedMove & piece) > 0) {
+            // auto piec = binIdxToGrid(piece);
+            // cout << std::get<0>(piec) << "," << std::get<1>(piec) << endl;
+            // cout << "piece collision:" << i << endl;
             return i % 2 == 0 ? WHITE : BLACK;
         }
     }
@@ -124,7 +131,7 @@ void MoveGenerator::addMoveIfValid(
     // cout << piece << endl;
     tileState pieceColor = static_cast<tileState>(pieceType % 2);
     if (newRank >= 0 && newRank < 8 && newFile >= 0 && newFile < 8) {
-        uint64_t proposedMove = A1 >> (newRank * 8 + newFile);        
+        uint64_t proposedMove = gridToBinIdx(newRank, newFile);        
         auto occupant = getOccupant(pieceType, proposedMove);
         if (occupant == pieceColor) { return; }
         // cout << "here!" << endl;
@@ -141,7 +148,7 @@ index of the piece in the board.
 */
 std::tuple<int, int> MoveGenerator::binIdxToGrid(uint64_t bin) {
     int index = __builtin_ctzll(bin); 
-    return std::make_tuple(index / 8ULL, index % 8ULL);
+    return std::make_tuple(index >> 3, index % 8ULL);
 }
 
 uint64_t MoveGenerator::gridToBinIdx(std::tuple<int, int> twoDIndex) {
@@ -149,5 +156,5 @@ uint64_t MoveGenerator::gridToBinIdx(std::tuple<int, int> twoDIndex) {
 }
 
 uint64_t MoveGenerator::gridToBinIdx(int rank, int file) {
-    return rank * 8 + file;
+    return 1ULL << (rank * 8 + file);
 }

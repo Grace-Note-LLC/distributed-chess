@@ -35,7 +35,7 @@ setup: install-deps build-ts run-server
 
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall
+CXXFLAGS = -std=c++11 -Wall -g -ftrapv
 
 # Directories
 SRC_DIR = dispatcher

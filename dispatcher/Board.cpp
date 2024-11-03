@@ -35,7 +35,7 @@ by uppercase letters.
 
 This can be used for debugging purposes.
 */
-void Board::prettyPrint(Board board) {
+void Board::prettyPrint() {
     vector<char> textBoard;
     for (int i = 0; i < 64; i++) textBoard.push_back(' ');
 
@@ -44,13 +44,12 @@ void Board::prettyPrint(Board board) {
         for (int i = 0; i < 64; i++) {
             uint64_t mask = 1ULL << i;
             if ((mask & Board::getPiece(piece)) > 0) {
-                textBoard[63 - i] = pieceAsASCII(piece); 
-                // needs to be 63 - i because the board is printed from top to bottom
+                textBoard[i] = pieceAsASCII(piece); 
             }
         }
     }
 
-    cout << "     " << "A B C D E F G H" << endl;
+    cout << "     " << "0 1 2 3 4 5 6 7" << endl;
     cout << "     " << "---------------";
     for (int rank = 7; rank >= 0; rank--) {
         cout << endl << "  " << rank << "| ";
