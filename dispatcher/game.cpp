@@ -11,7 +11,7 @@ int main() {
     // function to expand all possible moves
     Board board;
     board.fillStandard();
-    board.prettyPrint(board);
+    board.prettyPrint();
     
     return 0;
 }

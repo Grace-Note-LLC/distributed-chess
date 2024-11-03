@@ -108,7 +108,7 @@ MoveGenerator::tileState MoveGenerator::getOccupant(Board::PieceIndex pieceType,
     auto pieces = this->board->getPieces();
     for (int i = 0; i < 12; i++) {
         if (i == pieceType) { continue; }
-        uint64_t piece = pieces->at(i);
+        uint64_t piece = pieces[i];
         if (piece == 0ULL) { continue; }
 
         if ((proposedMove & piece) > 0) {

@@ -52,14 +52,14 @@ public:
 
     Board();  // Constructor declaration
     void fillStandard();
-    void fillEmpty() { pieces = std::vector<uint64_t>(12, 0); }
+    void fillEmpty() { std::fill(std::begin(pieces), std::end(pieces), 0); }
 
     void prettyPrint();
 
-    std::vector<uint64_t>* getPieces() { return &pieces; }
+    uint64_t* getPieces() { return pieces; }
 
     uint64_t& getPiece(PieceIndex index) { return pieces[index]; }
-    std::vector<PieceIndex> getPieceIndices() { return pivec; }
+    PieceIndex* getPieceIndices() { return pivec; }
     char pieceAsASCII(PieceIndex index);
 
     void setPieceBin(PieceIndex index, uint64_t piece) { pieces[index] = piece; }
@@ -69,8 +69,8 @@ public:
     }
 
 private:
-    std::vector<uint64_t> pieces = std::vector<uint64_t>(12, 0);
-    std::vector<PieceIndex> pivec = {
+    uint64_t pieces[12] = {};
+    PieceIndex pivec[12] = {
         WHITE_PAWNS, BLACK_PAWNS, WHITE_ROOKS, BLACK_ROOKS, WHITE_KNIGHTS, BLACK_KNIGHTS, WHITE_BISHOPS, BLACK_BISHOPS, WHITE_QUEEN, BLACK_QUEEN, WHITE_KING, BLACK_KING
     };
 };
