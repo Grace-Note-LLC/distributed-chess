@@ -1,21 +1,38 @@
 import React from 'react';
 import Square from './Square';
 
+interface Position {
+  row: number;
+  col: number;
+}
 
-const row = ["a", "b,", "c", "d", "e", "f", "g"]
-const col = [1, 2, 3, 4, 5, 6, 7, 8]
-
-export default function Board(){
-    let board = [];
-
-    for(let i = 0; i<row.length; i++){
-        for(let j = 0; j<col.length; j++){
-            console.log(row[i], col[j])
-            board.push(<span>{row[i]} {col[j]}</span>)
-        }
-    }
-    return <div id = "Board">{
-        <Square />
-    }</div>
+interface BoardProps {
 
 }
+
+interface SquareProps {
+  position: Position;
+}
+
+const Board: React.FC<BoardProps> = () => {
+
+  const rows: null[] = Array(8).fill(null);
+  const cols: null[] = Array(8).fill(null);
+
+  return (
+    <div className="board">
+      {rows.map((_, rowIndex) => (
+        <div key={rowIndex} className="board-row">
+          {cols.map((_, colIndex) => (
+            <Square 
+              key={`${rowIndex}-${colIndex}`}
+              position={{ row: rowIndex, col: colIndex }}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default Board;
