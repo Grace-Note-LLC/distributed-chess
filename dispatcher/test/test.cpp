@@ -7,6 +7,8 @@
 
 using namespace std;
 
+std::tuple<int, int> CORNERS[4] = { {0, 0}, {0, 7}, {7, 0}, {7, 7} };
+
 void testStandardBoard() {
     Board board;
     board.fillStandard();
@@ -101,9 +103,8 @@ Expected output: "Moves.size(): 3" for all corners.
 void testKingMoveGeneration_corners() {
     Board board;
     board.fillEmpty();
-    std::tuple<int, int> corners[4] = { {0, 0}, {0, 7}, {7, 0}, {7, 7} };
     for (int i = 0; i < 4 ; i++) {
-        board.setPieceRF(Board::WHITE_KING, std::get<0>(corners[i]), std::get<1>(corners[i]));
+        board.setPieceRF(Board::WHITE_KING, std::get<0>(CORNERS[i]), std::get<1>(CORNERS[i]));
         MoveGenerator moveGen(&board);
         std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_KING);
         cout << "Moves.size(): " << moves.size() << endl;
@@ -205,6 +206,67 @@ void testKingMoveGeneration_mixedColors() {
     cout << "Moves.size(): " << moves.size() << endl;
 }
 
+void testBishopMoveGeneration() {
+    Board board;
+    board.fillEmpty();
+    board.setPieceRF(Board::WHITE_BISHOPS, 4, 4);
+    board.prettyPrint();
+    MoveGenerator moveGen(&board);
+    std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_BISHOPS);
+    for (const auto& move : moves) {
+        auto rankfile = moveGen.binIdxToGrid(move.getNewPosition());
+        cout << "Rank: " << std::get<0>(rankfile) << " File: " << std::get<1>(rankfile) << endl;
+    }
+}
+
+void testBishopMoveGeneration_corners() {
+    Board board;
+    for (int i = 0; i < 4; i++) {
+        board.setPieceRF(Board::WHITE_BISHOPS, std::get<0>(CORNERS[i]), std::get<1>(CORNERS[i]));
+        board.prettyPrint();
+        MoveGenerator moveGen(&board);
+        std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_BISHOPS);
+        for (const auto& move : moves) {
+            auto rankfile = moveGen.binIdxToGrid(move.getNewPosition());
+            cout << "Rank: " << std::get<0>(rankfile) << " File: " << std::get<1>(rankfile) << endl;
+        }
+        board.fillEmpty();
+    }
+}
+
+void testBishopMoveGeneration_edges() {
+    Board board;
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            if (rank == 0 || rank == 7 || file == 0 || file == 7) {
+                board.setPieceRF(Board::WHITE_BISHOPS, rank, file);
+                board.prettyPrint();
+                MoveGenerator moveGen(&board);
+                std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_BISHOPS);
+                // for (const auto& move : moves) {
+                //     auto rankfile = moveGen.binIdxToGrid(move.getNewPosition());
+                //     cout << "Rank: " << std::get<0>(rankfile) << " File: " << std::get<1>(rankfile) << endl;
+                // }
+                cout << "moves.size(): " << moves.size() << endl;
+                board.fillEmpty();
+            }
+        }
+    }
+}
+
+void testBishopMoveGeneration_all() {
+    Board board;
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            board.setPieceRF(Board::WHITE_BISHOPS, rank, file);
+            MoveGenerator moveGen(&board);
+            std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_BISHOPS);
+            cout << "(" << rank << "," << file << "): " << "moves.size(): " << moves.size() << endl;
+            board.fillEmpty();
+        }
+    }
+}
+
 void test_gridToBinIdx() {
     MoveGenerator moveGen(nullptr);
     for (int rank = 0; rank < 8; rank++) {
@@ -222,7 +284,7 @@ int main() {
     // testAllPositionsRF();
     // testAllPositionsBin();
     // testKingMoveGeneration_alldirections();
-    testKingMoveGeneration_alldirections_everywhere();
+    // testKingMoveGeneration_alldirections_everywhere();
     // testKingMoveGeneration_edges();
     // testKingMoveGeneration_corners();
     // test_gridToBinIdx();
@@ -230,6 +292,10 @@ int main() {
     // testKingMoveGeneration_blockedSameColorCorner();
     // testKingMoveGeneration_blockedDiffColor();
     // testKingMoveGeneration_mixedColors();
+    // testBishopMoveGeneration();
+    // testBishopMoveGeneration_corners();
+    // testBishopMoveGeneration_edges();
+    testBishopMoveGeneration_all();
 
     return 0;
 }

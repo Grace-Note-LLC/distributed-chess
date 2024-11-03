@@ -55,12 +55,25 @@ private:
         EMPTY
     };
 
-    // Possible moves for a king (relative to current position)
-    std::vector<std::pair<int, int>> kingOffsets = {
+    // Possible moves for a KING (relative to current position)
+    std::pair<int, int> kingOffsets[8] = {
         {1, -1}, {1,  0}, {1,  1},
         {0, -1},          {0,  1},
         {-1,-1}, {-1, 0}, {-1, 1}
     };
+
+    // Possible moves for a BISHOP (relative to current position)
+    std::pair<int, int> bishopOffsets[28] = {
+        // Up-Right (positive x, positive y)
+        {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7},
+        // Up-Left (positive x, negative y)
+        {1, -1}, {2, -2}, {3, -3}, {4, -4}, {5, -5}, {6, -6}, {7, -7},
+        // Down-Right (negative x, positive y)
+        {-1, 1}, {-2, 2}, {-3, 3}, {-4, 4}, {-5, 5}, {-6, 6}, {-7, 7},
+        // Down-Left (negative x, negative y)
+        {-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7}
+    };
+
 
     // Helper functions to generate moves for each piece type
     std::vector<Move> generatePawnMoves(Board::PieceIndex pieceType);
