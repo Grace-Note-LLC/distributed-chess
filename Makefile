@@ -54,7 +54,7 @@ $(BUILD_DIR):
 
 # Compile test executable
 test: $(BUILD_DIR) $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(BUILD_DIR)/test
+	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(BUILD_DIR)/test -g
 
 # Compile .cpp files to .o files in the build directory
 $(BUILD_DIR)/Board.o: $(SRC_DIR)/Board.cpp | $(BUILD_DIR)

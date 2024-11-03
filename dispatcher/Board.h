@@ -54,7 +54,7 @@ public:
     void fillStandard();
     void fillEmpty() { pieces = std::vector<uint64_t>(12, 0); }
 
-    void prettyPrint(Board board);
+    void prettyPrint();
 
     std::vector<uint64_t>* getPieces() { return &pieces; }
 
@@ -65,7 +65,7 @@ public:
     void setPieceBin(PieceIndex index, uint64_t piece) { pieces[index] = piece; }
     
     void setPieceRF(PieceIndex index, int rank, int file) { 
-        pieces[index] = 1ULL << (63 - ((rank) * 8 + (file))); 
+        pieces[index] |= 1ULL << (63 - (rank * 8 + file)); 
     }
 
 private:

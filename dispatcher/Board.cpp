@@ -35,7 +35,7 @@ by uppercase letters.
 
 This can be used for debugging purposes.
 */
-void Board::prettyPrint(Board board) {
+void Board::prettyPrint() {
     vector<char> textBoard;
     for (int i = 0; i < 64; i++) textBoard.push_back(' ');
 
