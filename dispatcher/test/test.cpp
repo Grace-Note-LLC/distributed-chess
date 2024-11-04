@@ -267,6 +267,20 @@ void testBishopMoveGeneration_all() {
     }
 }
 
+/*
+Test move generation for two BISHOPS placed on the board.
+Expected output: "moves.size(): 26"
+*/
+void testBishopMoveGeneration_two() {
+    Board board;
+    board.setPieceRF(Board::WHITE_BISHOPS, 4, 4);
+    board.setPieceRF(Board::WHITE_BISHOPS, 4, 3);
+    board.prettyPrint();
+    MoveGenerator moveGen(&board);
+    std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_BISHOPS);
+    cout << "moves.size(): " << moves.size() << endl;
+}
+
 void testRookMoveGeneration_all() {
     Board board;
     for (int rank = 0; rank < 8; rank++) {
@@ -335,9 +349,11 @@ int main() {
     // testBishopMoveGeneration_corners();
     // testBishopMoveGeneration_edges();
     // testBishopMoveGeneration_all();
+    testBishopMoveGeneration_two();
     // testRookMoveGeneration_all();
     // testKnightMoveGeneration_all();
-    testQueenMoveGeneration_all();
+    // testQueenMoveGeneration_all();
+    
 
     return 0;
 }

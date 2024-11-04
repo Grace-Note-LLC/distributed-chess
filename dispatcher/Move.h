@@ -110,6 +110,14 @@ private:
         {0, -1}, {0, -2}, {0, -3}, {0, -4}, {0, -5}, {0, -6}, {0, -7}
     };
     
+    // Pawn offsets for white and black pawns
+    std::pair<int, int> whitePawnNormalOffset = {1, 0};
+    std::pair<int, int> whitePawnDoubleOffset = {2, 0};
+    std::pair<int, int> whitePawnCaptureOffsets[2] = {{1, 1}, {1, -1}};
+    std::pair<int, int> blackPawnNormalOffset = {-1, 0};
+    std::pair<int, int> blackPawnDoubleOffset = {-2, 0};
+    std::pair<int, int> blackPawnCaptureOffsets[2] = {{-1, 1}, {-1, -1}};
+
     // Helper functions to generate moves for each piece type
     std::vector<Move> generatePawnMoves(Board::PieceIndex pieceType);
     std::vector<Move> generateRookMoves(Board::PieceIndex pieceType);

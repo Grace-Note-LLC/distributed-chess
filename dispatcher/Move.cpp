@@ -64,7 +64,11 @@ void MoveGenerator::undoMove(const Move& move) {
 
 std::vector<Move> MoveGenerator::generatePawnMoves(Board::PieceIndex pieceType) {
     std::vector<Move> moves;
-    // Implement pawn move generation logic
+    uint64_t piece = this->board->getPiece(pieceType);
+    auto color = static_cast<tileState>(pieceType % 2);    
+
+    // TODO: Implement pawn move generation
+
     return moves;
 }
 
@@ -97,11 +101,14 @@ std::vector<Move> MoveGenerator::generateKnightMoves(Board::PieceIndex pieceType
 std::vector<Move> MoveGenerator::generateBishopMoves(Board::PieceIndex pieceType) {
     std::vector<Move> moves;
     uint64_t piece = this->board->getPiece(pieceType);
-    auto rankfile = binIdxToGrid(piece);
-    int rank = std::get<0>(rankfile);
-    int file = std::get<1>(rankfile);
-    for (const auto& os : bishopOffsets) {
-        addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+    while (piece > 0) {
+        auto rankfile = binIdxToGrid(piece);
+        int rank = std::get<0>(rankfile);
+        int file = std::get<1>(rankfile);
+        for (const auto& os : bishopOffsets) {
+            addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+        }
+        piece ^= gridToBinIdx(rank, file);
     }
     return moves;
 }
