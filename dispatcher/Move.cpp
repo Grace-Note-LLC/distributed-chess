@@ -69,7 +69,7 @@ void MoveGenerator::generatePawnDiagonalCaptures(
     int rank, 
     int file) {
     
-    if (rank >= 0 && rank < 8 && file >= 0 && file < 8) {
+    if (isOnBoard(rank, file)) {
         uint64_t proposedMove = gridToBinIdx(rank, file);
         auto color = static_cast<tileState>(pieceType % 2);
         auto occupant = getOccupant(pieceType, proposedMove);
@@ -255,7 +255,7 @@ void MoveGenerator::addMoveIfValid(
     // cout << "Rank: " << rank << " File: " << file << endl;
     // cout << piece << endl;
     tileState pieceColor = static_cast<tileState>(pieceType % 2);
-    if (newRank >= 0 && newRank < 8 && newFile >= 0 && newFile < 8) {
+    if (isOnBoard(newRank, newFile)) {
         uint64_t proposedMove = gridToBinIdx(newRank, newFile);        
         auto occupant = getOccupant(pieceType, proposedMove);
         if (occupant == pieceColor) { return; }
