@@ -5,6 +5,12 @@
 #include <cstdint>
 #pragma once
 
+enum tileState {
+    WHITE,
+    BLACK,
+    EMPTY
+};
+
 /*
 Converts a binary index to a grid index (rank, file).
 

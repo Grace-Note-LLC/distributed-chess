@@ -18,13 +18,10 @@ Move::Move(Board::PieceIndex pieceType, uint64_t newPosition, bool isCapture, Bo
     this->prevBoard = prevBoard;
 }
 
-std::vector<Move> MoveGenerator::generateAllWhiteMoves() {
+std::vector<Move> MoveGenerator::generateAllMoves(tileState color) {
     std::vector<Move> moves;
-    // Iterate over all piece types using pivec and generate moves for each
-    // append to moves
-    // return moves
     const Board::PieceIndex* pieceIndices = this->board->getPieceIndices();
-    for (int i = 0; i < 12; i += 2) {
+    for (int i = color; i < 12; i += 2) {
         auto pieceType = pieceIndices[i];
         auto pieceMoves = generatePieceMoves(pieceType);
         moves.insert(moves.end(), pieceMoves.begin(), pieceMoves.end());
@@ -32,19 +29,7 @@ std::vector<Move> MoveGenerator::generateAllWhiteMoves() {
     return moves;
 }
 
-std::vector<Move> MoveGenerator::generateAllBlackMoves() {
-    std::vector<Move> moves;
-    const Board::PieceIndex* pieceIndices = this->board->getPieceIndices();
-    for (int i = 1; i < 12; i += 2) {
-        auto pieceType = pieceIndices[i];
-        auto pieceMoves = generatePieceMoves(pieceType);
-        moves.insert(moves.end(), pieceMoves.begin(), pieceMoves.end());
-    }
-    return moves;
-}
-
-std::vector<Move> MoveGenerator::generatePieceMoves(Board::PieceIndex pieceType)
-{
+std::vector<Move> MoveGenerator::generatePieceMoves(Board::PieceIndex pieceType){
     std::vector<Move> moves;
     switch (pieceType) {
         case Board::WHITE_PAWNS:
@@ -240,7 +225,7 @@ std::vector<Move> MoveGenerator::generateKingMoves(Board::PieceIndex pieceType) 
     return moves;
 }
 
-MoveGenerator::tileState MoveGenerator::getOccupant(Board::PieceIndex pieceType, uint64_t proposedMove) {
+tileState MoveGenerator::getOccupant(Board::PieceIndex pieceType, uint64_t proposedMove) {
     auto pieces = this->board->getPieces();
     for (int i = 0; i < 12; i++) {
         // if (i == pieceType) { continue; }
@@ -248,7 +233,7 @@ MoveGenerator::tileState MoveGenerator::getOccupant(Board::PieceIndex pieceType,
         if (piece == 0ULL) { continue; }
         if ((proposedMove & piece) > 0) return i % 2 == 0 ? WHITE : BLACK;
     }
-    return MoveGenerator::EMPTY;
+    return EMPTY;
 }
 
 void MoveGenerator::addMoveIfValid(

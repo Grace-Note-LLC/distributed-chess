@@ -43,14 +43,14 @@ TEST_F(BoardTest, testAllPositionsBin) {
 TEST_F(BoardTest, MoveGenerator_AllPieces_Standard_White) {
     board->fillStandard();
     MoveGenerator moveGen(board);
-    std::vector<Move> moves = moveGen.generateAllWhiteMoves();
+    std::vector<Move> moves = moveGen.generateAllMoves(WHITE);
     ASSERT_EQ(moves.size(), 20);
 }
 
 TEST_F(BoardTest, MoveGenerator_AllPieces_Standard_Black) {
     board->fillStandard();
     MoveGenerator moveGen(board);
-    std::vector<Move> moves = moveGen.generateAllBlackMoves();
+    std::vector<Move> moves = moveGen.generateAllMoves(BLACK);
     ASSERT_EQ(moves.size(), 20);
 }
 

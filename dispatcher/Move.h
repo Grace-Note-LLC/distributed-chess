@@ -7,13 +7,14 @@ Methods for piece movement.
 #include <cstdint>
 #include <iostream>
 #include "Board.h"  // Include Board for accessing board state
-#include "Utils.h"  // Include Utils for gridToBinIdx and binIdxToGrid
+#include "Utils.h"  
 
 using namespace std;
 
 class Move {
 public:
     Move(Board::PieceIndex pieceType, uint64_t newPosition, bool isCapture, Board* prevBoard);
+    Move() {}
 
     Board::PieceIndex getPieceType() const { return pieceType; }
     bool isCapture()                 const { return capture; }
@@ -38,8 +39,7 @@ public:
     MoveGenerator(Board* board) { this->board = board; }
 
     // Generate all legal WHITE moves for the current board state
-    std::vector<Move> generateAllWhiteMoves();
-    std::vector<Move> generateAllBlackMoves();
+    std::vector<Move> generateAllMoves(tileState color);
 
     // Generate moves for a specific piece type
     std::vector<Move> generatePieceMoves(Board::PieceIndex pieceType);
@@ -55,12 +55,7 @@ public:
 
 private:
     Board* board;  // Pointer to the board object
-    enum tileState {
-        WHITE,
-        BLACK,
-        EMPTY
-    };
-
+   
     // Possible moves for a KING (relative to current position)
     const std::pair<int, int> kingOffsets[8] = {
         {1, -1}, {1,  0}, {1,  1},

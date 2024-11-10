@@ -1,5 +1,8 @@
-#include "Board.h"
 #include <iostream>
+
+#include "Board.h"
+#include "Utils.h"
+#include "Move.h"
 
 using namespace std;
 
@@ -77,4 +80,32 @@ void Board::fillStandard() {
     pieces[BLACK_QUEEN]   = 0x0800000000000000;  
     pieces[WHITE_KING]    = 0x0000000000000010;
     pieces[BLACK_KING]    = 0x1000000000000000;
+}
+
+bool Board::isInCheck(tileState color) {
+        // Find the position of the king of the given color
+        uint64_t kingPosition = getPiece((color == WHITE) ? Board::WHITE_KING : Board::BLACK_KING);
+
+        // Generate all possible moves for the opponent
+        tileState opponentColor = (color == WHITE) ? BLACK : WHITE;
+        MoveGenerator moveGen(this);
+        std::vector<Move> opponentMoves = moveGen.generateAllMoves(opponentColor);
+
+        // Check if any of the opponent's moves can capture the king
+        for (const auto& move : opponentMoves) {
+            if (move.getNewPosition() == kingPosition) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+/*
+Check if the game is over.
+*/
+bool Board::isGameOver() {
+    
+
+
+    return false;
 }

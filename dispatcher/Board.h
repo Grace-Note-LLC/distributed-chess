@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include "Utils.h" 
+
 /*
 Bit implementation of a chess board. Each piece is represented by a 64-bit integer, 
 unfolded to an 8x8 grid. The MSB is the bottom left corner of the board (A1), and 
@@ -48,7 +50,6 @@ public:
         WHITE_KING,
         BLACK_KING
     };
-    
 
     Board();  // Constructor declaration
     void fillStandard();
@@ -67,6 +68,9 @@ public:
     void setPieceRF(PieceIndex index, int rank, int file) { 
         pieces[index] |= 1ULL << (rank * 8 + file); 
     }
+
+    bool isInCheck(tileState color);
+    bool isGameOver();
 
 private:
     uint64_t pieces[12] = {};
