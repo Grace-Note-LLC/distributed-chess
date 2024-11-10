@@ -8,7 +8,8 @@
 #include <iostream>
 using namespace std;
 
-const uint64_t A1 = 0x8000000000000000;
+const int WHITE_PAWN_DOUBLE_RANK = 1;
+const int BLACK_PAWN_DOUBLE_RANK = 6;
 
 Move::Move(Board::PieceIndex pieceType, uint64_t newPosition, bool isCapture, Board *prevBoard) {
     this->newPosition = newPosition;
@@ -83,44 +84,28 @@ std::vector<Move> MoveGenerator::generatePawnMoves(Board::PieceIndex pieceType) 
     std::vector<Move> moves;
     uint64_t piece = this->board->getPiece(pieceType);
     auto color = static_cast<tileState>(pieceType % 2);    
-    if (color == WHITE) {
-        while (piece > 0) {
-            auto rankfile = binIdxToGrid(piece);
-            int rank = std::get<0>(rankfile);
-            int file = std::get<1>(rankfile);
-            // Check for pawn 2x move
-            tileState front = getOccupant(pieceType, gridToBinIdx(rank + 1, file));
-            if (front == EMPTY){
-                if (rank == 1)
-                    addMoveIfValid(moves, pieceType, rank + whitePawnDoubleOffset, file);
-                addMoveIfValid(moves, pieceType, rank + whitePawnSingleOffset, file);
-            }
+    int singleOffset           = (color == WHITE) ? whitePawnSingleOffset   : blackPawnSingleOffset;
+    int doubleOffset           = (color == WHITE) ? whitePawnDoubleOffset   : blackPawnDoubleOffset;
+    const auto& captureOffsets = (color == WHITE) ? whitePawnCaptureOffsets : blackPawnCaptureOffsets;
+    int startRank              = (color == WHITE) ? WHITE_PAWN_DOUBLE_RANK  : BLACK_PAWN_DOUBLE_RANK;
 
-            // Check for diagonal captures
-            for (const auto& os : whitePawnCaptureOffsets) {
-                generatePawnDiagonalCaptures(moves, pieceType, rank + os.first, file + os.second);
-            }
-            piece ^= gridToBinIdx(rank, file);
+    while (piece > 0) {
+        auto rankfile = binIdxToGrid(piece);
+        int rank = std::get<0>(rankfile);
+        int file = std::get<1>(rankfile);
+        // Check for pawn 2x move
+        tileState front = getOccupant(pieceType, gridToBinIdx(rank + singleOffset, file));
+        if (front == EMPTY) {
+            if (rank == startRank)
+                addMoveIfValid(moves, pieceType, rank + doubleOffset, file);
+            addMoveIfValid(moves, pieceType, rank + singleOffset, file);
         }
-    } else if (color == BLACK) {
-        while (piece > 0) {
-            auto rankfile = binIdxToGrid(piece);
-            int rank = std::get<0>(rankfile);
-            int file = std::get<1>(rankfile);
-            // Check for pawn 2x move
-            if (rank == 6) 
-                addMoveIfValid(moves, pieceType, rank + blackPawnDoubleOffset, file);
 
-            // Pawn will always have the option to move forward
-            addMoveIfValid(moves, pieceType, rank + blackPawnSingleOffset, file);
-
-            // Check for diagonal captures
-            for (const auto& os : blackPawnCaptureOffsets) {
-                generatePawnDiagonalCaptures(moves, pieceType, rank + os.first, file + os.second);
-            }
-            piece ^= gridToBinIdx(rank, file);
-        }
-    } 
+        // Check for diagonal captures
+        for (const auto& os : captureOffsets)
+            generatePawnDiagonalCaptures(moves, pieceType, rank + os.first, file + os.second);
+        piece ^= gridToBinIdx(rank, file);
+    }
     return moves;
 }
 
@@ -235,13 +220,7 @@ MoveGenerator::tileState MoveGenerator::getOccupant(Board::PieceIndex pieceType,
         // if (i == pieceType) { continue; }
         uint64_t piece = pieces[i];
         if (piece == 0ULL) { continue; }
-
-        if ((proposedMove & piece) > 0) {
-            // auto piec = binIdxToGrid(piece);
-            // cout << std::get<0>(piec) << "," << std::get<1>(piec) << endl;
-            // cout << "piece collision:" << i << endl;
-            return i % 2 == 0 ? WHITE : BLACK;
-        }
+        if ((proposedMove & piece) > 0) return i % 2 == 0 ? WHITE : BLACK;
     }
     return MoveGenerator::EMPTY;
 }
@@ -252,14 +231,11 @@ void MoveGenerator::addMoveIfValid(
     int newRank, 
     int newFile) {
     
-    // cout << "Rank: " << rank << " File: " << file << endl;
-    // cout << piece << endl;
     tileState pieceColor = static_cast<tileState>(pieceType % 2);
     if (isOnBoard(newRank, newFile)) {
         uint64_t proposedMove = gridToBinIdx(newRank, newFile);        
         auto occupant = getOccupant(pieceType, proposedMove);
         if (occupant == pieceColor) { return; }
-        // cout << "here!" << endl;
         moves.push_back(Move(pieceType, proposedMove, occupant != EMPTY, this->board));
     }
 }
