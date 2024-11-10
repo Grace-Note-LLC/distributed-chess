@@ -15,6 +15,7 @@ class BoardTest : public ::testing::Test {
 protected:
     void SetUp() override {
         board = new Board();
+        moveGen = new MoveGenerator(board);
     }
 
     void TearDown() override {
@@ -22,6 +23,7 @@ protected:
     }
 
     Board* board;
+    MoveGenerator* moveGen;
 };
 
 TEST_F(BoardTest, testAllPositionsRF) {
@@ -42,19 +44,24 @@ TEST_F(BoardTest, testAllPositionsBin) {
 
 TEST_F(BoardTest, MoveGenerator_AllPieces_Standard_White) {
     board->fillStandard();
-    MoveGenerator moveGen(board);
-    std::vector<Move> moves = moveGen.generateAllMoves(WHITE);
+    std::vector<Move> moves = moveGen->generateAllMoves(WHITE);
     ASSERT_EQ(moves.size(), 20);
 }
 
 TEST_F(BoardTest, MoveGenerator_AllPieces_Standard_Black) {
     board->fillStandard();
-    MoveGenerator moveGen(board);
-    std::vector<Move> moves = moveGen.generateAllMoves(BLACK);
+    std::vector<Move> moves = moveGen->generateAllMoves(BLACK);
     ASSERT_EQ(moves.size(), 20);
 }
 
-int main(int argc, char** argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+TEST_F(BoardTest, KingChecked_White) {
+    board->setPieceRF(Board::WHITE_KING, 0, 0);
+    board->setPieceRF(Board::BLACK_ROOKS, 0, 7);
+    ASSERT_TRUE(board->isInCheck(WHITE));
+}
+
+TEST_F(BoardTest, KingChecked_Black) {
+    board->setPieceRF(Board::BLACK_KING, 7, 7);
+    board->setPieceRF(Board::WHITE_ROOKS, 7, 0);
+    ASSERT_TRUE(board->isInCheck(BLACK));
 }

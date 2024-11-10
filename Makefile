@@ -53,7 +53,8 @@ TEST_SOURCES = $(TEST_DIR)/test_king.cpp \
 			   $(TEST_DIR)/test_rook.cpp \
 			   $(TEST_DIR)/test_queen.cpp \
 			   $(TEST_DIR)/test_knight.cpp \
-			   $(TEST_DIR)/test_pawn.cpp
+			   $(TEST_DIR)/test_pawn.cpp \
+			   $(TEST_DIR)/test_board.cpp
 
 
 # Object files in the build directory
