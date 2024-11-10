@@ -3,6 +3,7 @@
 
 #include "Move.h"
 #include "Board.h"
+#include "Utils.h"
 
 #include <iostream>
 using namespace std;
@@ -62,24 +63,77 @@ void MoveGenerator::undoMove(const Move& move) {
     // Implement logic to revert the board state to before the given move
 }
 
+void MoveGenerator::generatePawnDiagonalCaptures(
+    std::vector<Move>& moves, 
+    Board::PieceIndex pieceType, 
+    int rank, 
+    int file) {
+    
+    if (rank >= 0 && rank < 8 && file >= 0 && file < 8) {
+        uint64_t proposedMove = gridToBinIdx(rank, file);
+        auto color = static_cast<tileState>(pieceType % 2);
+        auto occupant = getOccupant(pieceType, proposedMove);
+        if (occupant != color && occupant != EMPTY) {
+            moves.push_back(Move(pieceType, proposedMove, true, this->board));
+        }
+    }
+}
+
 std::vector<Move> MoveGenerator::generatePawnMoves(Board::PieceIndex pieceType) {
     std::vector<Move> moves;
     uint64_t piece = this->board->getPiece(pieceType);
     auto color = static_cast<tileState>(pieceType % 2);    
+    if (color == WHITE) {
+        while (piece > 0) {
+            auto rankfile = binIdxToGrid(piece);
+            int rank = std::get<0>(rankfile);
+            int file = std::get<1>(rankfile);
+            // Check for pawn 2x move
+            tileState front = getOccupant(pieceType, gridToBinIdx(rank + 1, file));
+            if (front == EMPTY){
+                if (rank == 1)
+                    addMoveIfValid(moves, pieceType, rank + whitePawnDoubleOffset, file);
+                addMoveIfValid(moves, pieceType, rank + whitePawnSingleOffset, file);
+            }
 
-    // TODO: Implement pawn move generation
+            // Check for diagonal captures
+            for (const auto& os : whitePawnCaptureOffsets) {
+                generatePawnDiagonalCaptures(moves, pieceType, rank + os.first, file + os.second);
+            }
+            piece ^= gridToBinIdx(rank, file);
+        }
+    } else if (color == BLACK) {
+        while (piece > 0) {
+            auto rankfile = binIdxToGrid(piece);
+            int rank = std::get<0>(rankfile);
+            int file = std::get<1>(rankfile);
+            // Check for pawn 2x move
+            if (rank == 6) 
+                addMoveIfValid(moves, pieceType, rank + blackPawnDoubleOffset, file);
 
+            // Pawn will always have the option to move forward
+            addMoveIfValid(moves, pieceType, rank + blackPawnSingleOffset, file);
+
+            // Check for diagonal captures
+            for (const auto& os : blackPawnCaptureOffsets) {
+                generatePawnDiagonalCaptures(moves, pieceType, rank + os.first, file + os.second);
+            }
+            piece ^= gridToBinIdx(rank, file);
+        }
+    } 
     return moves;
 }
 
 std::vector<Move> MoveGenerator::generateRookMoves(Board::PieceIndex pieceType) {
     std::vector<Move> moves;
     uint64_t piece = this->board->getPiece(pieceType);
-    auto rankfile = binIdxToGrid(piece);
-    int rank = std::get<0>(rankfile);
-    int file = std::get<1>(rankfile);
-    for (const auto& os : rookOffsets) {
-        addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+    while (piece > 0) {
+        auto rankfile = binIdxToGrid(piece);
+        int rank = std::get<0>(rankfile);
+        int file = std::get<1>(rankfile);
+        for (const auto& os : rookOffsets)
+            addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+        piece ^= gridToBinIdx(rank, file);
     }
     return moves;
 }
@@ -101,12 +155,29 @@ std::vector<Move> MoveGenerator::generateKnightMoves(Board::PieceIndex pieceType
 std::vector<Move> MoveGenerator::generateBishopMoves(Board::PieceIndex pieceType) {
     std::vector<Move> moves;
     uint64_t piece = this->board->getPiece(pieceType);
+    auto color = static_cast<tileState>(pieceType % 2);
     while (piece > 0) {
         auto rankfile = binIdxToGrid(piece);
         int rank = std::get<0>(rankfile);
         int file = std::get<1>(rankfile);
-        for (const auto& os : bishopOffsets)
-            addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+        for (const auto& diagonal : bishopOffsets) {
+            for (const auto& os : diagonal) {
+                if (rank + os.first < 0 || rank + os.first >= 8 || file + os.second < 0 || file + os.second >= 8) { break; }
+
+                tileState next = getOccupant(pieceType, gridToBinIdx(rank + os.first, file + os.second));
+                cout << "color: " << color << "|" << "next: " << next << endl;
+                if (color == next) { break; }
+                if (color != next && next != EMPTY) {
+                    addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+                    break;
+                }
+                addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+            }
+        }
+        for (auto move : moves) {
+            move.print();
+        }
+        cout << "fjsdj" << endl;
         piece ^= gridToBinIdx(rank, file);
     }
     return moves;
@@ -141,7 +212,7 @@ std::vector<Move> MoveGenerator::generateKingMoves(Board::PieceIndex pieceType) 
 MoveGenerator::tileState MoveGenerator::getOccupant(Board::PieceIndex pieceType, uint64_t proposedMove) {
     auto pieces = this->board->getPieces();
     for (int i = 0; i < 12; i++) {
-        if (i == pieceType) { continue; }
+        // if (i == pieceType) { continue; }
         uint64_t piece = pieces[i];
         if (piece == 0ULL) { continue; }
 
@@ -171,24 +242,4 @@ void MoveGenerator::addMoveIfValid(
         // cout << "here!" << endl;
         moves.push_back(Move(pieceType, proposedMove, occupant != EMPTY, this->board));
     }
-}
-
-/*
-Converts a binary index to a grid index (rank, file).
-
-Function `__builtin_ctzll` counts the number of trailing 
-zeros in a 64-bit integer. This is used to determine the
-index of the piece in the board.
-*/
-std::tuple<int, int> MoveGenerator::binIdxToGrid(uint64_t bin) {
-    int index = __builtin_ctzll(bin); 
-    return std::make_tuple(index >> 3, index % 8ULL);
-}
-
-uint64_t MoveGenerator::gridToBinIdx(std::tuple<int, int> twoDIndex) {
-    return gridToBinIdx(std::get<0>(twoDIndex), std::get<1>(twoDIndex));
-}
-
-uint64_t MoveGenerator::gridToBinIdx(int rank, int file) {
-    return 1ULL << (rank * 8 + file);
 }

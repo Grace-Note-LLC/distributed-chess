@@ -5,7 +5,11 @@ Methods for piece movement.
 #define MOVE_H
 
 #include <cstdint>
+#include <iostream>
 #include "Board.h"  // Include Board for accessing board state
+#include "Utils.h"  // Include Utils for gridToBinIdx and binIdxToGrid
+
+using namespace std;
 
 class Move {
 public:
@@ -15,6 +19,12 @@ public:
     bool isCapture()                 const { return capture; }
     Board* getPrevBoard()            const { return prevBoard; }
     uint64_t getNewPosition()        const { return newPosition; }
+    void print() {
+        auto move = binIdxToGrid(newPosition);
+        cout << "Piece type: " << pieceType << endl;
+        cout << "Capture: " << capture << endl;
+        cout << "New position: " << "(" << get<0>(move) << "," << get<1>(move) << ")" << endl;
+    }
 
 private:
     uint64_t newPosition;        // New position of the piece
@@ -42,11 +52,6 @@ public:
     // Undo a move on the board
     void undoMove(const Move& move);
 
-    // (row, column)
-    std::tuple<int, int> binIdxToGrid(uint64_t bin);
-    uint64_t gridToBinIdx(std::tuple<int, int> twoDIndex);
-    uint64_t gridToBinIdx(int rank, int file);
-
 private:
     Board* board;  // Pointer to the board object
     enum tileState {
@@ -56,25 +61,25 @@ private:
     };
 
     // Possible moves for a KING (relative to current position)
-    std::pair<int, int> kingOffsets[8] = {
+    const std::pair<int, int> kingOffsets[8] = {
         {1, -1}, {1,  0}, {1,  1},
         {0, -1},          {0,  1},
         {-1,-1}, {-1, 0}, {-1, 1}
     };
 
     // Possible moves for a BISHOP (relative to current position)
-    std::pair<int, int> bishopOffsets[28] = {
+    const std::pair<int, int> bishopOffsets[4][7] = {
         // Up-Right (positive x, positive y)
-        {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7},
+        { {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7} },
         // Up-Left (positive x, negative y)
-        {1, -1}, {2, -2}, {3, -3}, {4, -4}, {5, -5}, {6, -6}, {7, -7},
+        { {1, -1}, {2, -2}, {3, -3}, {4, -4}, {5, -5}, {6, -6}, {7, -7} },
         // Down-Right (negative x, positive y)
-        {-1, 1}, {-2, 2}, {-3, 3}, {-4, 4}, {-5, 5}, {-6, 6}, {-7, 7},
+        { {-1, 1}, {-2, 2}, {-3, 3}, {-4, 4}, {-5, 5}, {-6, 6}, {-7, 7} },
         // Down-Left (negative x, negative y)
-        {-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7}
+        { {-1, -1}, {-2, -2}, {-3, -3}, {-4, -4}, {-5, -5}, {-6, -6}, {-7, -7} }
     };
 
-    std::pair<int, int> rookOffsets[28] = {
+    const std::pair<int, int> rookOffsets[28] = {
         // Right (positive x)
         {1, 0}, {2, 0}, {3, 0}, {4, 0}, {5, 0}, {6, 0}, {7, 0},
         // Left (negative x)
@@ -85,12 +90,12 @@ private:
         {0, -1}, {0, -2}, {0, -3}, {0, -4}, {0, -5}, {0, -6}, {0, -7}
     };
 
-    std::pair<int, int> knightOffsets[8] = {
+    const std::pair<int, int> knightOffsets[8] = {
         {2, 1}, {1, 2}, {-1, 2}, {-2, 1},
         {-2, -1}, {-1, -2}, {1, -2}, {2, -1}
     };
 
-    std::pair<int, int> queenOffsets[56] = {
+    const std::pair<int, int> queenOffsets[56] = {
         // Combine rook and bishop offsets for queen
         // Up-Right (positive x, positive y)
         {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7},
@@ -111,12 +116,12 @@ private:
     };
     
     // Pawn offsets for white and black pawns
-    std::pair<int, int> whitePawnNormalOffset = {1, 0};
-    std::pair<int, int> whitePawnDoubleOffset = {2, 0};
-    std::pair<int, int> whitePawnCaptureOffsets[2] = {{1, 1}, {1, -1}};
-    std::pair<int, int> blackPawnNormalOffset = {-1, 0};
-    std::pair<int, int> blackPawnDoubleOffset = {-2, 0};
-    std::pair<int, int> blackPawnCaptureOffsets[2] = {{-1, 1}, {-1, -1}};
+    const int whitePawnSingleOffset = 1;
+    const int whitePawnDoubleOffset = 2;
+    const std::pair<int, int> whitePawnCaptureOffsets[2] = {{1, 1}, {1, -1}};
+    const int blackPawnSingleOffset = -1;
+    const int blackPawnDoubleOffset = -2;
+    const std::pair<int, int> blackPawnCaptureOffsets[2] = {{-1, 1}, {-1, -1}};
 
     // Helper functions to generate moves for each piece type
     std::vector<Move> generatePawnMoves(Board::PieceIndex pieceType);
@@ -134,7 +139,13 @@ private:
         int newRank, 
         int newFile
     );
-    
+    void generatePawnDiagonalCaptures(
+        std::vector<Move>& moves, 
+        Board::PieceIndex pieceType, 
+        int rank, 
+        int file
+    );
+
 };
 
 #endif // MOVE_H
