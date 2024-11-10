@@ -81,20 +81,20 @@ std::vector<Move> MoveGenerator::generateRookMoves(Board::PieceIndex pieceType) 
     for (const auto& os : rookOffsets) {
         addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
     }
-
     return moves;
 }
 
 std::vector<Move> MoveGenerator::generateKnightMoves(Board::PieceIndex pieceType) {
     std::vector<Move> moves;
     uint64_t piece = this->board->getPiece(pieceType);
-    auto rankfile = binIdxToGrid(piece);
-    int rank = std::get<0>(rankfile);
-    int file = std::get<1>(rankfile);
-    for (const auto& os : knightOffsets) {
-        addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+    while (piece > 0) {
+        auto rankfile = binIdxToGrid(piece);
+        int rank = std::get<0>(rankfile);
+        int file = std::get<1>(rankfile);
+        for (const auto& os : knightOffsets)
+            addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+        piece ^= gridToBinIdx(rank, file);
     }
-
     return moves;
 }
 
@@ -105,21 +105,24 @@ std::vector<Move> MoveGenerator::generateBishopMoves(Board::PieceIndex pieceType
         auto rankfile = binIdxToGrid(piece);
         int rank = std::get<0>(rankfile);
         int file = std::get<1>(rankfile);
-        for (const auto& os : bishopOffsets) {
+        for (const auto& os : bishopOffsets)
             addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
-        }
         piece ^= gridToBinIdx(rank, file);
     }
     return moves;
 }
 
-/*
-QUEEN moves the same way as the ROOK + BISHOP
-*/
 std::vector<Move> MoveGenerator::generateQueenMoves(Board::PieceIndex pieceType) {
-    std::vector<Move> moves = generateRookMoves(pieceType);
-    std::vector<Move> bishopMoves = generateBishopMoves(pieceType);
-    moves.insert(moves.end(), bishopMoves.begin(), bishopMoves.end());
+    std::vector<Move> moves;
+    uint64_t piece = this->board->getPiece(pieceType);
+    while (piece > 0) {
+        auto rankfile = binIdxToGrid(piece);
+        int rank = std::get<0>(rankfile);
+        int file = std::get<1>(rankfile);
+        for (const auto& os : queenOffsets)
+            addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+        piece ^= gridToBinIdx(rank, file);
+    }
     return moves;
 }
 
