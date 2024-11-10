@@ -194,12 +194,24 @@ std::vector<Move> MoveGenerator::generateBishopMoves(Board::PieceIndex pieceType
 std::vector<Move> MoveGenerator::generateQueenMoves(Board::PieceIndex pieceType) {
     std::vector<Move> moves;
     uint64_t piece = this->board->getPiece(pieceType);
+    auto color = static_cast<tileState>(pieceType % 2);
     while (piece > 0) {
         auto rankfile = binIdxToGrid(piece);
         int rank = std::get<0>(rankfile);
         int file = std::get<1>(rankfile);
-        for (const auto& os : queenOffsets)
-            addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+        for (const auto& lineOfSight : queenOffsets) {
+            for (const auto& os : lineOfSight) {
+                if (!isOnBoard(rank + os.first, file + os.second)) { break; }
+
+                tileState next = getOccupant(pieceType, gridToBinIdx(rank + os.first, file + os.second));
+                if (color == next) { break; }
+                if (color != next && next != EMPTY) {
+                    addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+                    break;
+                }
+                addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+            }
+        }
         piece ^= gridToBinIdx(rank, file);
     }
     return moves;
