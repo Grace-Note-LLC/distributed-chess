@@ -126,6 +126,7 @@ TEST_F(PawnTest, PawnMoveGeneration_Black_Capture_Double) {
     std::vector<Move> moves = moveGen.generatePieceMoves(Board::BLACK_PAWNS);
     std::vector<std::tuple<int, int>> expectedMoves = { {4, 4}, {5, 4}, {5, 5} };
     ASSERT_EQ(moves.size(), expectedMoves.size());
+    for (auto& move : moves) move.print();
     for (const auto& move : moves) {
         auto rankfile = binIdxToGrid(move.getNewPosition());
         ASSERT_TRUE(

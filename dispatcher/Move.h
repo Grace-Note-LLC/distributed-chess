@@ -13,13 +13,20 @@ using namespace std;
 
 class Move {
 public:
-    Move(Board::PieceIndex pieceType, uint64_t newPosition, bool isCapture, Board* prevBoard);
+    Move(
+        Board::PieceIndex pieceType, 
+        uint64_t newPosition, 
+        uint64_t oldPosition,
+        bool isCapture, 
+        Board* prevBoard
+    );
     Move() {}
 
     Board::PieceIndex getPieceType() const { return pieceType; }
     bool isCapture()                 const { return capture; }
     Board* getPrevBoard()            const { return prevBoard; }
     uint64_t getNewPosition()        const { return newPosition; }
+    uint64_t getOldPosition()        const { return oldPosition; }
     void print() {
         auto move = binIdxToGrid(newPosition);
         cout << "Piece type: " << pieceType << endl;
@@ -29,6 +36,7 @@ public:
 
 private:
     uint64_t newPosition;        // New position of the piece
+    uint64_t oldPosition;        // Old position of the piece
     bool capture;                // Whether this move captures an opponent's piece
     Board::PieceIndex pieceType; // Type of piece being moved
     Board* prevBoard;            // Previous board state
@@ -132,12 +140,14 @@ private:
     void addMoveIfValid(
         std::vector<Move>& moves, 
         Board::PieceIndex pieceType, 
+        uint64_t oldPosition,
         int newRank, 
         int newFile
     );
     void generatePawnDiagonalCaptures(
         std::vector<Move>& moves, 
-        Board::PieceIndex pieceType, 
+        Board::PieceIndex pieceType,
+        uint64_t oldPosition,
         int rank, 
         int file
     );

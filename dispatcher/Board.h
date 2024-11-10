@@ -70,6 +70,7 @@ public:
     }
 
     bool isInCheck(tileState color);
+    bool isCheckmate(tileState color);
     bool isGameOver();
 
 private:
