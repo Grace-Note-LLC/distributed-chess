@@ -18,7 +18,33 @@ Move::Move(Board::PieceIndex pieceType, uint64_t newPosition, bool isCapture, Bo
     this->prevBoard = prevBoard;
 }
 
-std::vector<Move> MoveGenerator::generatePieceMoves(Board::PieceIndex pieceType) {
+std::vector<Move> MoveGenerator::generateAllWhiteMoves() {
+    std::vector<Move> moves;
+    // Iterate over all piece types using pivec and generate moves for each
+    // append to moves
+    // return moves
+    const Board::PieceIndex* pieceIndices = this->board->getPieceIndices();
+    for (int i = 0; i < 12; i += 2) {
+        auto pieceType = pieceIndices[i];
+        auto pieceMoves = generatePieceMoves(pieceType);
+        moves.insert(moves.end(), pieceMoves.begin(), pieceMoves.end());
+    }
+    return moves;
+}
+
+std::vector<Move> MoveGenerator::generateAllBlackMoves() {
+    std::vector<Move> moves;
+    const Board::PieceIndex* pieceIndices = this->board->getPieceIndices();
+    for (int i = 1; i < 12; i += 2) {
+        auto pieceType = pieceIndices[i];
+        auto pieceMoves = generatePieceMoves(pieceType);
+        moves.insert(moves.end(), pieceMoves.begin(), pieceMoves.end());
+    }
+    return moves;
+}
+
+std::vector<Move> MoveGenerator::generatePieceMoves(Board::PieceIndex pieceType)
+{
     std::vector<Move> moves;
     switch (pieceType) {
         case Board::WHITE_PAWNS:

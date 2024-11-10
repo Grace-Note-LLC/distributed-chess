@@ -37,8 +37,9 @@ class MoveGenerator {
 public:
     MoveGenerator(Board* board) { this->board = board; }
 
-    // Generate all legal moves for the current board state
-    std::vector<Move> generateAllMoves();
+    // Generate all legal WHITE moves for the current board state
+    std::vector<Move> generateAllWhiteMoves();
+    std::vector<Move> generateAllBlackMoves();
 
     // Generate moves for a specific piece type
     std::vector<Move> generatePieceMoves(Board::PieceIndex pieceType);

@@ -9,7 +9,7 @@ unfolded to an 8x8 grid. The MSB is the bottom left corner of the board (A1), an
 the LSB is the top right (H8). The board is represented as follows: 
 
 Given a uint64_t,
-    A0                                                            H7
+    H7                                                            A0
         ____    ____    ____    ____    ____    ____    ____    ____    
     ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
 
@@ -17,14 +17,14 @@ The board is represented as follows:
 
         A B C D E F G H
         ---------------
-    7\  4 5 6 7 8 9 + /
-    6\  w x y z 0 1 2 3
-    5\  o p q r s t u v
-    4\  g h i j k l m n
-    3\  Y Z a b c d e f
-    2\  Q R S T U V W X
-    1\  I J K L M N O P
-    0\  A B C D E F G H
+    7\  H G F E D C B A
+    6\  P O N M L K J I
+    5\  X W V U T S R Q
+    4\  f e d c b a Z Y
+    3\  n m l k j i h g
+    2\  v u t s r q p o
+    1\  3 2 1 0 z y x w
+    0\  / + 9 8 7 6 5 4
 
 For example, we can represent a black pawn on as 0x0000000000000FF0
 in which the row (or rank) 2 is filled with 1s, indicating the presence of
@@ -59,7 +59,7 @@ public:
     uint64_t* getPieces() { return pieces; }
 
     uint64_t& getPiece(PieceIndex index) { return pieces[index]; }
-    PieceIndex* getPieceIndices() { return pivec; }
+    const PieceIndex* getPieceIndices() { return pivec; }
     char pieceAsASCII(PieceIndex index);
 
     void setPieceBin(PieceIndex index, uint64_t piece) { pieces[index] = piece; }
@@ -70,9 +70,9 @@ public:
 
 private:
     uint64_t pieces[12] = {};
-    PieceIndex pivec[12] = {
+    const PieceIndex pivec[12] = {
         WHITE_PAWNS, BLACK_PAWNS, WHITE_ROOKS, BLACK_ROOKS, WHITE_KNIGHTS, BLACK_KNIGHTS, WHITE_BISHOPS, BLACK_BISHOPS, WHITE_QUEEN, BLACK_QUEEN, WHITE_KING, BLACK_KING
     };
 };
 
-#endif // BOARD_H`
+#endif // BOARD_H

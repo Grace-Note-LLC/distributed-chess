@@ -24,18 +24,11 @@ protected:
     Board* board;
 };
 
-TEST_F(BoardTest, StandardBoardSetup) {
-    board->fillStandard();
-    board->prettyPrint();
-}
-
 TEST_F(BoardTest, testAllPositionsRF) {
     for (int rank = 7; rank >= 0; rank--) {
         for (int file = 0; file < 8; file++) {
             board->setPieceRF(Board::WHITE_KING, rank, file);
-            board->prettyPrint();
             board->fillEmpty();
-            cout << endl;
         }
     }
 }
@@ -43,10 +36,22 @@ TEST_F(BoardTest, testAllPositionsRF) {
 TEST_F(BoardTest, testAllPositionsBin) {
     for (int i = 0; i < 64; i++) {
         board->setPieceBin(Board::WHITE_KING, 1ULL << i);
-        board->prettyPrint();
         board->fillEmpty();
-        cout << endl;
     }
+}
+
+TEST_F(BoardTest, MoveGenerator_AllPieces_Standard_White) {
+    board->fillStandard();
+    MoveGenerator moveGen(board);
+    std::vector<Move> moves = moveGen.generateAllWhiteMoves();
+    ASSERT_EQ(moves.size(), 20);
+}
+
+TEST_F(BoardTest, MoveGenerator_AllPieces_Standard_Black) {
+    board->fillStandard();
+    MoveGenerator moveGen(board);
+    std::vector<Move> moves = moveGen.generateAllBlackMoves();
+    ASSERT_EQ(moves.size(), 20);
 }
 
 int main(int argc, char** argv) {
