@@ -127,12 +127,24 @@ std::vector<Move> MoveGenerator::generatePawnMoves(Board::PieceIndex pieceType) 
 std::vector<Move> MoveGenerator::generateRookMoves(Board::PieceIndex pieceType) {
     std::vector<Move> moves;
     uint64_t piece = this->board->getPiece(pieceType);
+    auto color = static_cast<tileState>(pieceType % 2);
     while (piece > 0) {
         auto rankfile = binIdxToGrid(piece);
         int rank = std::get<0>(rankfile);
         int file = std::get<1>(rankfile);
-        for (const auto& os : rookOffsets)
-            addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+        for (const auto& cardinal : rookOffsets) {
+            for (const auto& os : cardinal) {
+                if (!isOnBoard(rank + os.first, file + os.second)) { break; }
+
+                tileState next = getOccupant(pieceType, gridToBinIdx(rank + os.first, file + os.second));
+                if (color == next) { break; }
+                if (color != next && next != EMPTY) {
+                    addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+                    break;
+                }
+                addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
+            }
+        }
         piece ^= gridToBinIdx(rank, file);
     }
     return moves;
@@ -162,10 +174,10 @@ std::vector<Move> MoveGenerator::generateBishopMoves(Board::PieceIndex pieceType
         int file = std::get<1>(rankfile);
         for (const auto& diagonal : bishopOffsets) {
             for (const auto& os : diagonal) {
-                if (rank + os.first < 0 || rank + os.first >= 8 || file + os.second < 0 || file + os.second >= 8) { break; }
+                if (!isOnBoard(rank + os.first, file + os.second)) { break; }
 
                 tileState next = getOccupant(pieceType, gridToBinIdx(rank + os.first, file + os.second));
-                cout << "color: " << color << "|" << "next: " << next << endl;
+                // cout << "color: " << color << "|" << "next: " << next << endl;
                 if (color == next) { break; }
                 if (color != next && next != EMPTY) {
                     addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
@@ -174,10 +186,6 @@ std::vector<Move> MoveGenerator::generateBishopMoves(Board::PieceIndex pieceType
                 addMoveIfValid(moves, pieceType, rank + os.first, file + os.second);
             }
         }
-        for (auto move : moves) {
-            move.print();
-        }
-        cout << "fjsdj" << endl;
         piece ^= gridToBinIdx(rank, file);
     }
     return moves;

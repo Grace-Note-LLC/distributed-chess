@@ -25,5 +25,8 @@ inline uint64_t gridToBinIdx(std::tuple<int, int> twoDIndex) {
     return gridToBinIdx(std::get<0>(twoDIndex), std::get<1>(twoDIndex));
 }
 
+inline bool isOnBoard(int rank, int file) {
+    return rank >= 0 && rank < 8 && file >= 0 && file < 8;
+}
 
 #endif // UTILS_H

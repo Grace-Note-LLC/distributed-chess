@@ -49,7 +49,8 @@ GTEST_LIB_PATH = /usr/local/lib
 # Source files
 SOURCES = $(SRC_DIR)/Board.cpp $(SRC_DIR)/Move.cpp $(TEST_DIR)/test.cpp
 TEST_SOURCES = $(TEST_DIR)/test_king.cpp \
-			   $(TEST_DIR)/test_bishop.cpp
+			   $(TEST_DIR)/test_bishop.cpp \
+			   $(TEST_DIR)/test_rook.cpp 
 # $(TEST_DIR)/test_queen.cpp $(TEST_DIR)/test_rook.cpp \
 	 $(TEST_DIR)/test_knight.cpp $(TEST_DIR)/test_pawn.cpp
 
