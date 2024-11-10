@@ -82,49 +82,19 @@ void Board::fillStandard() {
     pieces[BLACK_KING]    = 0x1000000000000000;
 }
 
-bool Board::isInCheck(tileState color) {
-    // Find the position of the king of the given color
-    uint64_t kingPosition = getPiece((color == WHITE) ? Board::WHITE_KING : Board::BLACK_KING);
+void Board::applyMove(Move move) {
+    // Implement logic to update the board state based on the given move
+    bool capture = move.isCapture();
+    uint64_t currPosition = this->getPiece(move.getPieceType());
+    uint64_t oldPosition = move.getOldPosition();
+    uint64_t newPosition = move.getNewPosition();
 
-    // Generate all possible moves for the opponent
-    tileState opponentColor = (color == WHITE) ? BLACK : WHITE;
-    MoveGenerator moveGen(this);
-    std::vector<Move> opponentMoves = moveGen.generateAllMoves(opponentColor);
+    currPosition ^= oldPosition;
+    currPosition |= newPosition;
 
-    // Check if any of the opponent's moves can capture the king
-    for (const auto& move : opponentMoves) {
-        if (move.getNewPosition() == kingPosition) {
-            return true;
-        }
+    this->setPieceBin(move.getPieceType(), currPosition);
+
+    if (capture) {
+        this->setPieceBin(static_cast<PieceIndex>(1), 0);
     }
-    return false;
-}
-
-bool Board::isCheckmate(tileState color) {
-    // Generate all possible moves for the given color
-    MoveGenerator moveGen(this);
-    std::vector<Move> allMoves = moveGen.generateAllMoves(color);
-
-    // Check if any of the moves result in a non-check position
-    for (const auto& move : allMoves) {
-        // Apply the move to a copy of the board
-        Board copy = *this;
-        moveGen.applyMove(move);
-
-        // Check if the king is still in check
-        if (!copy.isInCheck(color)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-/*
-Check if the game is over.
-*/
-bool Board::isGameOver() {
-    
-
-
-    return false;
 }

@@ -34,6 +34,8 @@ a black pawn. The rest of the board is empty.
 */
 #include <vector>
 
+class Move; 
+
 class Board {
 public:
     enum PieceIndex {
@@ -69,9 +71,9 @@ public:
         pieces[index] |= 1ULL << (rank * 8 + file); 
     }
 
-    bool isInCheck(tileState color);
-    bool isCheckmate(tileState color);
-    bool isGameOver();
+    void applyMove(Move move);
+
+   
 
 private:
     uint64_t pieces[12] = {};

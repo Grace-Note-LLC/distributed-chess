@@ -6,20 +6,19 @@ Methods for piece movement.
 
 #include <cstdint>
 #include <iostream>
+#include <vector>
+
 #include "Board.h"  // Include Board for accessing board state
 #include "Utils.h"  
 
 using namespace std;
 
+class Board;  // Forward declaration of Board class
+
 class Move {
 public:
     Move(
-        Board::PieceIndex pieceType, 
-        uint64_t newPosition, 
-        uint64_t oldPosition,
-        bool isCapture, 
-        Board* prevBoard
-    );
+        Board::PieceIndex pieceType, uint64_t newPosition, uint64_t oldPosition,bool isCapture, Board* prevBoard);
     Move() {}
 
     Board::PieceIndex getPieceType() const { return pieceType; }
@@ -55,11 +54,14 @@ public:
     // Check if a move is valid based on board state and piece rules
     bool isValidMove(const Move& move);
 
-    // Apply a move to the board (updates the board state)
-    void applyMove(const Move& move);
-
     // Undo a move on the board
     void undoMove(const Move& move);
+
+    tileState getOccupant(Board::PieceIndex, uint64_t proposedMove);
+
+    bool isInCheck(tileState color);
+    bool isCheckmate(tileState color);
+    bool isGameOver();
 
 private:
     Board* board;  // Pointer to the board object
@@ -136,7 +138,6 @@ private:
     std::vector<Move> generateKingMoves(Board::PieceIndex pieceType);
 
     // Helper functions for move validation
-    tileState getOccupant(Board::PieceIndex, uint64_t proposedMove);
     void addMoveIfValid(
         std::vector<Move>& moves, 
         Board::PieceIndex pieceType, 
