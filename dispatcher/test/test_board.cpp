@@ -54,14 +54,62 @@ TEST_F(BoardTest, MoveGenerator_AllPieces_Standard_Black) {
     ASSERT_EQ(moves.size(), 20);
 }
 
-TEST_F(BoardTest, KingChecked_White) {
+TEST_F(BoardTest, KingChecked_White_Rook) {
     board->setPieceRF(Board::WHITE_KING, 0, 0);
     board->setPieceRF(Board::BLACK_ROOKS, 0, 7);
     ASSERT_TRUE(board->isInCheck(WHITE));
 }
 
-TEST_F(BoardTest, KingChecked_Black) {
+TEST_F(BoardTest, KingChecked_White_Bishop) {
+    board->setPieceRF(Board::WHITE_KING, 0, 0);
+    board->setPieceRF(Board::BLACK_BISHOPS, 7, 7);
+    ASSERT_TRUE(board->isInCheck(WHITE));
+}
+
+TEST_F(BoardTest, KingChecked_White_Queen) {
+    board->setPieceRF(Board::WHITE_KING, 0, 0);
+    board->setPieceRF(Board::BLACK_QUEEN, 0, 7);
+    ASSERT_TRUE(board->isInCheck(WHITE));
+}
+
+TEST_F(BoardTest, KingChecked_White_Knight) {
+    board->setPieceRF(Board::WHITE_KING, 0, 0);
+    board->setPieceRF(Board::BLACK_KNIGHTS, 2, 1);
+    ASSERT_TRUE(board->isInCheck(WHITE));
+}
+
+TEST_F(BoardTest, KingChecked_White_Pawn) {
+    board->setPieceRF(Board::WHITE_KING, 0, 0);
+    board->setPieceRF(Board::BLACK_PAWNS, 1, 1);
+    ASSERT_TRUE(board->isInCheck(WHITE));
+}
+
+TEST_F(BoardTest, KingChecked_Black_Rook) {
     board->setPieceRF(Board::BLACK_KING, 7, 7);
     board->setPieceRF(Board::WHITE_ROOKS, 7, 0);
+    ASSERT_TRUE(board->isInCheck(BLACK));
+}
+
+TEST_F(BoardTest, KingChecked_Black_Bishop) {
+    board->setPieceRF(Board::BLACK_KING, 7, 7);
+    board->setPieceRF(Board::WHITE_BISHOPS, 0, 0);
+    ASSERT_TRUE(board->isInCheck(BLACK));
+}
+
+TEST_F(BoardTest, KingChecked_Black_Queen) {
+    board->setPieceRF(Board::BLACK_KING, 7, 7);
+    board->setPieceRF(Board::WHITE_QUEEN, 0, 0);
+    ASSERT_TRUE(board->isInCheck(BLACK));
+}
+
+TEST_F(BoardTest, KingChecked_Black_Knight) {
+    board->setPieceRF(Board::BLACK_KING, 7, 7);
+    board->setPieceRF(Board::WHITE_KNIGHTS, 5, 6);
+    ASSERT_TRUE(board->isInCheck(BLACK));
+}
+
+TEST_F(BoardTest, KingChecked_Black_Pawn) {
+    board->setPieceRF(Board::BLACK_KING, 7, 7);
+    board->setPieceRF(Board::WHITE_PAWNS, 6, 6);
     ASSERT_TRUE(board->isInCheck(BLACK));
 }
