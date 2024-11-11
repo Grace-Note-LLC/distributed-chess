@@ -64,6 +64,7 @@ public:
     uint64_t& getPiece(PieceIndex index) { return pieces[index]; }
     const PieceIndex* getPieceIndices() { return pivec; }
     char pieceAsASCII(PieceIndex index);
+    int getPieceCount(PieceIndex index) { return __builtin_popcountll(pieces[index]); }
 
     void setPieceBin(PieceIndex index, uint64_t piece) { pieces[index] = piece; }
     

@@ -69,10 +69,6 @@ bool MoveGenerator::isValidMove(const Move& move) {
     return true; // Placeholder
 }
 
-void MoveGenerator::undoMove(const Move& move) {
-    // Implement logic to revert the board state to before the given move
-}
-
 void MoveGenerator::generatePawnDiagonalCaptures(
     std::vector<Move>& moves, 
     Board::PieceIndex pieceType, 

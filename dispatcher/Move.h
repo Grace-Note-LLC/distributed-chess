@@ -54,9 +54,6 @@ public:
     // Check if a move is valid based on board state and piece rules
     bool isValidMove(const Move& move);
 
-    // Undo a move on the board
-    void undoMove(const Move& move);
-
     tileState getOccupant(Board::PieceIndex, uint64_t proposedMove);
 
     bool isInCheck(Board board, tileState color);
