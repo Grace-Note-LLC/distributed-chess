@@ -8,7 +8,7 @@ using namespace std;
 
 // Constructor implementation
 Board::Board() {
-    for (int i = 0; i < 12; i++) pieces[i] = 0ULL;
+    for (auto piece : pivec) pieces[piece] = 0ULL;
 }
 
 /*
@@ -84,17 +84,21 @@ void Board::fillStandard() {
 
 void Board::applyMove(Move move) {
     // Implement logic to update the board state based on the given move
-    bool capture = move.isCapture();
     uint64_t currPosition = this->getPiece(move.getPieceType());
     uint64_t oldPosition = move.getOldPosition();
     uint64_t newPosition = move.getNewPosition();
 
-    currPosition ^= oldPosition;
-    currPosition |= newPosition;
+    currPosition ^= oldPosition; // removes old position
+    currPosition |= newPosition; // adds new position
 
     this->setPieceBin(move.getPieceType(), currPosition);
 
-    if (capture) {
-        this->setPieceBin(static_cast<PieceIndex>(1), 0);
+    // remove the piece from the board
+    if (!move.isCapture()) return;
+    for (auto piece : pivec) {
+        if (pieces[piece] & newPosition) {
+            pieces[piece] ^= newPosition;
+            break;
+        }
     }
 }

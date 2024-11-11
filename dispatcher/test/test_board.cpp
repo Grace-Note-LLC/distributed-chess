@@ -130,17 +130,20 @@ TEST_F(BoardTest, KingChecked_Black_Pawn) {
 TEST_F(BoardTest, ApplyMove_noCapture) {
     board->fillStandard();
     std::vector<Move> moves = moveGen->generateAllMoves(WHITE);
-    Move move = moves[0];
-    board->applyMove(move);
-    board->prettyPrint();
+    board->applyMove(moves[0]);
     ASSERT_EQ(board->getPiece(Board::WHITE_PAWNS), 0x000000000100FE00);
 }
 
+/*
+Applies a move that captures.
+WARNING: This test is not deterministic, as the move generator may return
+different moves each time it is called.
+*/
 TEST_F(BoardTest, ApplyMove_Capture) {
     board->setPieceRF(Board::WHITE_KING, 0, 0);
     board->setPieceRF(Board::BLACK_ROOKS, 0, 1);
     std::vector<Move> moves = moveGen->generateAllMoves(WHITE);
-    Move move = moves[2];
-    board->applyMove(move);
+    board->applyMove(moves[2]); 
     ASSERT_EQ(board->getPiece(Board::BLACK_ROOKS), 0ULL);
 }
+
