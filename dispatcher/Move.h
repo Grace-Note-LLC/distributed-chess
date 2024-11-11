@@ -46,7 +46,7 @@ public:
     MoveGenerator(Board* board) { this->board = board; }
 
     // Generate all legal WHITE moves for the current board state
-    std::vector<Move> generateAllMoves(tileState color);
+    std::vector<Move> generateAllMoves(Board board, tileState color);
 
     // Generate moves for a specific piece type
     std::vector<Move> generatePieceMoves(Board::PieceIndex pieceType);
@@ -59,8 +59,8 @@ public:
 
     tileState getOccupant(Board::PieceIndex, uint64_t proposedMove);
 
-    bool isInCheck(tileState color);
-    bool isCheckmate(tileState color);
+    bool isInCheck(Board board, tileState color);
+    bool isCheckmate(Board* board, tileState color);
     bool isGameOver();
 
 private:

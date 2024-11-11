@@ -73,8 +73,6 @@ public:
 
     void applyMove(Move move);
 
-   
-
 private:
     uint64_t pieces[12] = {};
     const PieceIndex pivec[12] = {

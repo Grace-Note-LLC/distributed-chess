@@ -20,9 +20,9 @@ Move::Move(Board::PieceIndex pieceType, uint64_t newPosition, uint64_t oldPositi
     this->prevBoard = prevBoard;
 }
 
-std::vector<Move> MoveGenerator::generateAllMoves(tileState color) {
+std::vector<Move> MoveGenerator::generateAllMoves(Board board, tileState color) {
     std::vector<Move> moves;
-    const Board::PieceIndex* pieceIndices = this->board->getPieceIndices();
+    const Board::PieceIndex* pieceIndices = board.getPieceIndices();
     for (int i = color; i < 12; i += 2) {
         auto pieceType = pieceIndices[i];
         auto pieceMoves = generatePieceMoves(pieceType);
@@ -261,13 +261,13 @@ void MoveGenerator::addMoveIfValid(
     }
 }
 
-bool MoveGenerator::isInCheck(tileState color) {
+bool MoveGenerator::isInCheck(Board board, tileState color) {
     // Find the position of the king of the given color
-    uint64_t kingPosition = board->getPiece((color == WHITE) ? Board::WHITE_KING : Board::BLACK_KING);
+    uint64_t kingPosition = board.getPiece((color == WHITE) ? Board::WHITE_KING : Board::BLACK_KING);
 
     // Generate all possible moves for the opponent
     tileState opponentColor = (color == WHITE) ? BLACK : WHITE;
-    std::vector<Move> opponentMoves = this->generateAllMoves(opponentColor);
+    std::vector<Move> opponentMoves = this->generateAllMoves(board, opponentColor);
 
     // Check if any of the opponent's moves can capture the king
     for (const auto& move : opponentMoves) {
@@ -278,18 +278,25 @@ bool MoveGenerator::isInCheck(tileState color) {
     return false;
 }
 
-bool MoveGenerator::isCheckmate(tileState color) {
+/*
+Asks the game:
+    Is it checkmate for COLOR?
+
+*/
+bool MoveGenerator::isCheckmate(Board* board, tileState color) {
+    if (!isInCheck(*board, color)) { return false; }
+
     // Generate all possible moves for the given color
-    std::vector<Move> allMoves = this->generateAllMoves(color);
+    std::vector<Move> allMoves = this->generateAllMoves(*board, color);
 
     // Check if any of the moves result in a non-check position
     for (const auto& move : allMoves) {
         // Apply the move to a copy of the board
-        Board copy = *this->board;
+        Board copy = *board;
         copy.applyMove(move);
 
         // Check if the king is still in check
-        if (isInCheck(color)) {
+        if (!isInCheck(copy, color)) {
             return false;
         }
     }
