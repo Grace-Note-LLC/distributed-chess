@@ -25,38 +25,38 @@ std::vector<Move> MoveGenerator::generateAllMoves(Board board, tileState color) 
     const Board::PieceIndex* pieceIndices = board.getPieceIndices();
     for (int i = color; i < 12; i += 2) {
         auto pieceType = pieceIndices[i];
-        auto pieceMoves = generatePieceMoves(pieceType);
+        auto pieceMoves = generatePieceMoves(&board, pieceType);
         moves.insert(moves.end(), pieceMoves.begin(), pieceMoves.end());
     }
     return moves;
 }
 
-std::vector<Move> MoveGenerator::generatePieceMoves(Board::PieceIndex pieceType){
+std::vector<Move> MoveGenerator::generatePieceMoves(Board* board, Board::PieceIndex pieceType){
     std::vector<Move> moves;
     switch (pieceType) {
         case Board::WHITE_PAWNS:
         case Board::BLACK_PAWNS:
-            moves = generatePawnMoves(pieceType);
+            moves = generatePawnMoves(board, pieceType);
             break;
         case Board::WHITE_ROOKS:
         case Board::BLACK_ROOKS:
-            moves = generateRookMoves(pieceType);
+            moves = generateRookMoves(board, pieceType);
             break;
         case Board::WHITE_KNIGHTS:
         case Board::BLACK_KNIGHTS:
-            moves = generateKnightMoves(pieceType);
+            moves = generateKnightMoves(board, pieceType);
             break;
         case Board::WHITE_BISHOPS:
         case Board::BLACK_BISHOPS:
-            moves = generateBishopMoves(pieceType);
+            moves = generateBishopMoves(board, pieceType);
             break;
         case Board::WHITE_QUEEN:
         case Board::BLACK_QUEEN:
-            moves = generateQueenMoves(pieceType);
+            moves = generateQueenMoves(board, pieceType);
             break;
         case Board::WHITE_KING:
         case Board::BLACK_KING:
-            moves = generateKingMoves(pieceType);
+            moves = generateKingMoves(board, pieceType);
             break;
         default:
             break;
@@ -71,6 +71,7 @@ bool MoveGenerator::isValidMove(const Move& move) {
 
 void MoveGenerator::generatePawnDiagonalCaptures(
     std::vector<Move>& moves, 
+    Board* board,
     Board::PieceIndex pieceType, 
     uint64_t oldPosition,
     int newRank, 
@@ -79,16 +80,16 @@ void MoveGenerator::generatePawnDiagonalCaptures(
     if (isOnBoard(newRank, newFile)) {
         uint64_t proposedMove = gridToBinIdx(newRank, newFile);
         auto color = static_cast<tileState>(pieceType % 2);
-        auto occupant = getOccupant(pieceType, proposedMove);
+        auto occupant = getOccupant(board, pieceType, proposedMove);
         if (occupant != color && occupant != EMPTY) {
-            moves.push_back(Move(pieceType, proposedMove, oldPosition, true, this->board));
+            moves.push_back(Move(pieceType, proposedMove, oldPosition, true, board));
         }
     }
 }
 
-std::vector<Move> MoveGenerator::generatePawnMoves(Board::PieceIndex pieceType) {
+std::vector<Move> MoveGenerator::generatePawnMoves(Board* board, Board::PieceIndex pieceType) {
     std::vector<Move> moves;
-    uint64_t piece = this->board->getPiece(pieceType);
+    uint64_t piece = board->getPiece(pieceType);
     auto color = static_cast<tileState>(pieceType % 2);    
     int singleOffset           = (color == WHITE) ? whitePawnSingleOffset   : blackPawnSingleOffset;
     int doubleOffset           = (color == WHITE) ? whitePawnDoubleOffset   : blackPawnDoubleOffset;
@@ -101,24 +102,24 @@ std::vector<Move> MoveGenerator::generatePawnMoves(Board::PieceIndex pieceType) 
         int file = std::get<1>(rankfile);
         auto oldPosition = gridToBinIdx(rank, file);
         // Check for pawn 2x move
-        tileState front = getOccupant(pieceType, gridToBinIdx(rank + singleOffset, file));
+        tileState front = getOccupant(board, pieceType, gridToBinIdx(rank + singleOffset, file));
         if (front == EMPTY) {
             if (rank == startRank)
-                addMoveIfValid(moves, pieceType, oldPosition, rank + doubleOffset, file);
-            addMoveIfValid(moves, pieceType, oldPosition, rank + singleOffset, file);
+                addMoveIfValid(moves, board, pieceType, oldPosition, rank + doubleOffset, file);
+            addMoveIfValid(moves, board, pieceType, oldPosition, rank + singleOffset, file);
         }
 
         // Check for diagonal captures
         for (const auto& os : captureOffsets)
-            generatePawnDiagonalCaptures(moves, pieceType, oldPosition, rank + os.first, file + os.second);
+            generatePawnDiagonalCaptures(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
         piece ^= gridToBinIdx(rank, file);
     }
     return moves;
 }
 
-std::vector<Move> MoveGenerator::generateRookMoves(Board::PieceIndex pieceType) {
+std::vector<Move> MoveGenerator::generateRookMoves(Board* board, Board::PieceIndex pieceType) {
     std::vector<Move> moves;
-    uint64_t piece = this->board->getPiece(pieceType);
+    uint64_t piece = board->getPiece(pieceType);
     auto color = static_cast<tileState>(pieceType % 2);
     while (piece > 0) {
         auto rankfile = binIdxToGrid(piece);
@@ -129,14 +130,15 @@ std::vector<Move> MoveGenerator::generateRookMoves(Board::PieceIndex pieceType) 
         for (const auto& cardinal : rookOffsets) {
             for (const auto& os : cardinal) {
                 if (!isOnBoard(rank + os.first, file + os.second)) { break; }
+                uint64_t proposedPosition = gridToBinIdx(rank + os.first, file + os.second);
+                tileState next = getOccupant(board, pieceType, proposedPosition);
 
-                tileState next = getOccupant(pieceType, gridToBinIdx(rank + os.first, file + os.second));
                 if (color == next) { break; }
                 if (color != next && next != EMPTY) {
-                    addMoveIfValid(moves, pieceType, oldPosition, rank + os.first, file + os.second);
+                    addMoveIfValid(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
                     break;
                 }
-                addMoveIfValid(moves, pieceType, oldPosition, rank + os.first, file + os.second);
+                addMoveIfValid(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
             }
         }
         piece ^= gridToBinIdx(rank, file);
@@ -144,9 +146,9 @@ std::vector<Move> MoveGenerator::generateRookMoves(Board::PieceIndex pieceType) 
     return moves;
 }
 
-std::vector<Move> MoveGenerator::generateKnightMoves(Board::PieceIndex pieceType) {
+std::vector<Move> MoveGenerator::generateKnightMoves(Board* board, Board::PieceIndex pieceType) {
     std::vector<Move> moves;
-    uint64_t piece = this->board->getPiece(pieceType);
+    uint64_t piece = board->getPiece(pieceType);
 
     while (piece > 0) {
         auto rankfile = binIdxToGrid(piece);
@@ -155,15 +157,15 @@ std::vector<Move> MoveGenerator::generateKnightMoves(Board::PieceIndex pieceType
         auto oldPosition = gridToBinIdx(rank, file);
 
         for (const auto& os : knightOffsets)
-            addMoveIfValid(moves, pieceType, oldPosition, rank + os.first, file + os.second);
+            addMoveIfValid(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
         piece ^= gridToBinIdx(rank, file);
     }
     return moves;
 }
 
-std::vector<Move> MoveGenerator::generateBishopMoves(Board::PieceIndex pieceType) {
+std::vector<Move> MoveGenerator::generateBishopMoves(Board* board, Board::PieceIndex pieceType) {
     std::vector<Move> moves;
-    uint64_t piece = this->board->getPiece(pieceType);
+    uint64_t piece = board->getPiece(pieceType);
     auto color = static_cast<tileState>(pieceType % 2);
     while (piece > 0) {
         auto rankfile = binIdxToGrid(piece);
@@ -174,15 +176,15 @@ std::vector<Move> MoveGenerator::generateBishopMoves(Board::PieceIndex pieceType
         for (const auto& diagonal : bishopOffsets) {
             for (const auto& os : diagonal) {
                 if (!isOnBoard(rank + os.first, file + os.second)) { break; }
-
-                tileState next = getOccupant(pieceType, gridToBinIdx(rank + os.first, file + os.second));
+                uint64_t proposedPosition = gridToBinIdx(rank + os.first, file + os.second);
+                tileState next = getOccupant(board, pieceType, proposedPosition);
                 // cout << "color: " << color << "|" << "next: " << next << endl;
                 if (color == next) { break; }
                 if (color != next && next != EMPTY) {
-                    addMoveIfValid(moves, pieceType, oldPosition, rank + os.first, file + os.second);
+                    addMoveIfValid(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
                     break;
                 }
-                addMoveIfValid(moves, pieceType, oldPosition, rank + os.first, file + os.second);
+                addMoveIfValid(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
             }
         }
         piece ^= gridToBinIdx(rank, file);
@@ -190,9 +192,9 @@ std::vector<Move> MoveGenerator::generateBishopMoves(Board::PieceIndex pieceType
     return moves;
 }
 
-std::vector<Move> MoveGenerator::generateQueenMoves(Board::PieceIndex pieceType) {
+std::vector<Move> MoveGenerator::generateQueenMoves(Board* board, Board::PieceIndex pieceType) {
     std::vector<Move> moves;
-    uint64_t piece = this->board->getPiece(pieceType);
+    uint64_t piece = board->getPiece(pieceType);
     auto color = static_cast<tileState>(pieceType % 2);
     while (piece > 0) {
         auto rankfile = binIdxToGrid(piece);
@@ -202,14 +204,14 @@ std::vector<Move> MoveGenerator::generateQueenMoves(Board::PieceIndex pieceType)
         for (const auto& lineOfSight : queenOffsets) {
             for (const auto& os : lineOfSight) {
                 if (!isOnBoard(rank + os.first, file + os.second)) { break; }
-
-                tileState next = getOccupant(pieceType, gridToBinIdx(rank + os.first, file + os.second));
+                uint64_t proposedPosition = gridToBinIdx(rank + os.first, file + os.second);
+                tileState next = getOccupant(board, pieceType, proposedPosition);
                 if (color == next) { break; }
                 if (color != next && next != EMPTY) {
-                    addMoveIfValid(moves, pieceType, oldPosition, rank + os.first, file + os.second);
+                    addMoveIfValid(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
                     break;
                 }
-                addMoveIfValid(moves, pieceType, oldPosition, rank + os.first, file + os.second);
+                addMoveIfValid(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
             }
         }
         piece ^= gridToBinIdx(rank, file);
@@ -217,20 +219,20 @@ std::vector<Move> MoveGenerator::generateQueenMoves(Board::PieceIndex pieceType)
     return moves;
 }
 
-std::vector<Move> MoveGenerator::generateKingMoves(Board::PieceIndex pieceType) {
+std::vector<Move> MoveGenerator::generateKingMoves(Board* board, Board::PieceIndex pieceType) {
     std::vector<Move> moves;
-    uint64_t piece = this->board->getPiece(pieceType);
+    uint64_t piece = board->getPiece(pieceType);
     auto rankfile = binIdxToGrid(piece);
     int rank = std::get<0>(rankfile);
     int file = std::get<1>(rankfile);
     for (const auto& os : kingOffsets) {
-        addMoveIfValid(moves, pieceType, piece, rank + os.first, file + os.second);
+        addMoveIfValid(moves, board, pieceType, piece, rank + os.first, file + os.second);
     }
     return moves;
 }
 
-tileState MoveGenerator::getOccupant(Board::PieceIndex pieceType, uint64_t proposedMove) {
-    auto pieces = this->board->getPieces();
+tileState MoveGenerator::getOccupant(Board* board, Board::PieceIndex pieceType, uint64_t proposedMove) {
+    auto pieces = board->getPieces();
     for (int i = 0; i < 12; i++) {
         // if (i == pieceType) { continue; }
         uint64_t piece = pieces[i];
@@ -242,6 +244,7 @@ tileState MoveGenerator::getOccupant(Board::PieceIndex pieceType, uint64_t propo
 
 void MoveGenerator::addMoveIfValid(
     std::vector<Move>& moves, 
+    Board* board,
     Board::PieceIndex pieceType, 
     uint64_t oldPosition,
     int newRank, 
@@ -250,10 +253,10 @@ void MoveGenerator::addMoveIfValid(
     tileState pieceColor = static_cast<tileState>(pieceType % 2);
     if (isOnBoard(newRank, newFile)) {
         uint64_t proposedMove = gridToBinIdx(newRank, newFile);        
-        auto occupant = getOccupant(pieceType, proposedMove);
+        auto occupant = getOccupant(board, pieceType, proposedMove);
         if (occupant == pieceColor) { return; }
         moves.push_back(
-            Move(pieceType, proposedMove, oldPosition, occupant != EMPTY, this->board));
+            Move(pieceType, proposedMove, oldPosition, occupant != EMPTY, board));
     }
 }
 

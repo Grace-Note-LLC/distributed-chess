@@ -43,25 +43,25 @@ private:
 
 class MoveGenerator {
 public:
-    MoveGenerator(Board* board) { this->board = board; }
+    MoveGenerator() {}
 
     // Generate all legal WHITE moves for the current board state
     std::vector<Move> generateAllMoves(Board board, tileState color);
 
     // Generate moves for a specific piece type
-    std::vector<Move> generatePieceMoves(Board::PieceIndex pieceType);
+    std::vector<Move> generatePieceMoves(Board* board, Board::PieceIndex pieceType);
 
     // Check if a move is valid based on board state and piece rules
     bool isValidMove(const Move& move);
 
-    tileState getOccupant(Board::PieceIndex, uint64_t proposedMove);
+    tileState getOccupant(Board* board, Board::PieceIndex, uint64_t proposedMove);
 
     bool isInCheck(Board board, tileState color);
     bool isCheckmate(Board* board, tileState color);
     bool isGameOver();
 
 private:
-    Board* board;  // Pointer to the board object
+    // Board* board;  // Pointer to the board object
    
     // Possible moves for a KING (relative to current position)
     const std::pair<int, int> kingOffsets[8] = {
@@ -127,16 +127,17 @@ private:
     const std::pair<int, int> blackPawnCaptureOffsets[2] = {{-1, 1}, {-1, -1}};
 
     // Helper functions to generate moves for each piece type
-    std::vector<Move> generatePawnMoves(Board::PieceIndex pieceType);
-    std::vector<Move> generateRookMoves(Board::PieceIndex pieceType);
-    std::vector<Move> generateKnightMoves(Board::PieceIndex pieceType);
-    std::vector<Move> generateBishopMoves(Board::PieceIndex pieceType);
-    std::vector<Move> generateQueenMoves(Board::PieceIndex pieceType);
-    std::vector<Move> generateKingMoves(Board::PieceIndex pieceType);
+    std::vector<Move> generatePawnMoves(Board* board, Board::PieceIndex pieceType);
+    std::vector<Move> generateRookMoves(Board* board, Board::PieceIndex pieceType);
+    std::vector<Move> generateKnightMoves(Board* board, Board::PieceIndex pieceType);
+    std::vector<Move> generateBishopMoves(Board* board, Board::PieceIndex pieceType);
+    std::vector<Move> generateQueenMoves(Board* board, Board::PieceIndex pieceType);
+    std::vector<Move> generateKingMoves(Board* board, Board::PieceIndex pieceType);
 
     // Helper functions for move validation
     void addMoveIfValid(
         std::vector<Move>& moves, 
+        Board* board,
         Board::PieceIndex pieceType, 
         uint64_t oldPosition,
         int newRank, 
@@ -144,6 +145,7 @@ private:
     );
     void generatePawnDiagonalCaptures(
         std::vector<Move>& moves, 
+        Board* board,
         Board::PieceIndex pieceType,
         uint64_t oldPosition,
         int rank, 

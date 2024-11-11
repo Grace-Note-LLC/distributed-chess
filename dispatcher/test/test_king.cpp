@@ -10,7 +10,7 @@ protected:
     void SetUp() override {
         board = new Board();
         board->fillEmpty();
-        moveGen = new MoveGenerator(board);
+        moveGen = new MoveGenerator();
     }
 
     void TearDown() override {
@@ -24,7 +24,7 @@ protected:
 
 TEST_F(KingTest, KingMoveGeneration_AllDirections) {
     board->setPieceRF(Board::WHITE_KING, 4, 4);
-    std::vector<Move> moves = moveGen->generatePieceMoves(Board::WHITE_KING);
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_KING);
     std::vector<std::tuple<int, int>> expectedMoves = {
         {3, 3}, {3, 4}, {3, 5},
         {4, 3},         {4, 5},
@@ -49,7 +49,7 @@ TEST_F(KingTest, KingMoveGeneration_Edges) {
 
     for (const auto& pos : edgePositions) {
         board->setPieceRF(Board::WHITE_KING, std::get<0>(pos), std::get<1>(pos));
-        std::vector<Move> moves = moveGen->generatePieceMoves(Board::WHITE_KING);
+        std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_KING);
         ASSERT_EQ(moves.size(), 5);
         board->fillEmpty();
     }
@@ -62,7 +62,7 @@ TEST_F(KingTest, KingMoveGeneration_Corners) {
 
     for (const auto& pos : cornerPositions) {
         board->setPieceRF(Board::WHITE_KING, std::get<0>(pos), std::get<1>(pos));
-        std::vector<Move> moves = moveGen->generatePieceMoves(Board::WHITE_KING);
+        std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_KING);
         ASSERT_EQ(moves.size(), 3);
         board->fillEmpty();
     }
@@ -81,7 +81,7 @@ TEST_F(KingTest, KingMoveGeneration_BlockedSameColor) {
     orv |= gridToBinIdx(5, 5);
     board->setPieceBin(Board::WHITE_PAWNS, orv);
 
-    std::vector<Move> moves = moveGen->generatePieceMoves(Board::WHITE_KING);
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_KING);
     ASSERT_EQ(moves.size(), 0);
 }
 
@@ -101,7 +101,7 @@ TEST_F(KingTest, KingMoveGeneration_BlockedDiffColor) {
     board->setPieceRF(Board::BLACK_PAWNS, 4, 3);
     board->setPieceRF(Board::BLACK_PAWNS, 4, 4);
 
-    std::vector<Move> moves = moveGen->generatePieceMoves(Board::WHITE_KING);
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_KING);
     ASSERT_EQ(moves.size(), 8);
 }
 /*
@@ -112,7 +112,7 @@ TEST_F(KingTest, KingMoveGeneration_AllDirectionsEverywhere) {
     for (int rank = 6; rank > 0; rank--) {
         for (int file = 1; file < 7; file++) {
             board->setPieceRF(Board::WHITE_KING, rank, file);
-            std::vector<Move> moves = moveGen->generatePieceMoves(Board::WHITE_KING);
+            std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_KING);
             ASSERT_EQ(moves.size(), 8);
             board->fillEmpty();
         }
@@ -125,7 +125,7 @@ TEST_F(KingTest, KingMoveGeneration_BlockedSameColorCorner) {
     board->setPieceRF(Board::WHITE_PAWNS, 0, 1);
     board->setPieceRF(Board::WHITE_PAWNS, 1, 1);
 
-    std::vector<Move> moves = moveGen->generatePieceMoves(Board::WHITE_KING);
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_KING);
     ASSERT_EQ(moves.size(), 0);
 }
 
@@ -141,7 +141,7 @@ TEST_F(KingTest, KingMoveGeneration_MixedColors) {
     board->setPieceRF(Board::BLACK_PAWNS, 4, 3);
     board->setPieceRF(Board::WHITE_PAWNS, 4, 4);
 
-    std::vector<Move> moves = moveGen->generatePieceMoves(Board::WHITE_KING);
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_KING);
     ASSERT_EQ(moves.size(), 4);
 }
 
@@ -157,6 +157,6 @@ TEST_F(KingTest, KingMoveGeneration_MixedColorsPrint) {
     board->setPieceRF(Board::BLACK_PAWNS, 4, 3);
     board->setPieceRF(Board::WHITE_PAWNS, 4, 4);
     // board->prettyPrint();
-    std::vector<Move> moves = moveGen->generatePieceMoves(Board::WHITE_KING);
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_KING);
     ASSERT_EQ(moves.size(), 4);
 }

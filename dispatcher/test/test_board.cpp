@@ -15,7 +15,7 @@ class BoardTest : public ::testing::Test {
 protected:
     void SetUp() override {
         board = new Board();
-        moveGen = new MoveGenerator(board);
+        moveGen = new MoveGenerator();
     }
 
     void TearDown() override {
@@ -164,5 +164,5 @@ TEST_F(BoardTest, Check_EscapeOnCapture) {
     board->setPieceRF(Board::BLACK_ROOKS, 0, 1);
     board->prettyPrint();
     ASSERT_FALSE(moveGen->isCheckmate(board, WHITE));
-    ASSERT_FALSE(moveGen->isInCheck(*board, WHITE));
+    ASSERT_TRUE(moveGen->isInCheck(*board, WHITE));
 }

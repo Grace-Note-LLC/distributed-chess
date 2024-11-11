@@ -47,18 +47,20 @@ TEST_DIR = $(SRC_DIR)/test
 GTEST_LIB_PATH = /usr/local/lib
 
 # Source files
-SOURCES = $(SRC_DIR)/Board.cpp $(SRC_DIR)/Move.cpp $(TEST_DIR)/test.cpp
+SOURCES = $(SRC_DIR)/Board.cpp $(SRC_DIR)/Move.cpp $(SRC_DIR)/Bot.cpp $(TEST_DIR)/test.cpp
+
 TEST_SOURCES = $(TEST_DIR)/test_king.cpp \
 			   $(TEST_DIR)/test_bishop.cpp \
 			   $(TEST_DIR)/test_rook.cpp \
 			   $(TEST_DIR)/test_queen.cpp \
 			   $(TEST_DIR)/test_knight.cpp \
 			   $(TEST_DIR)/test_pawn.cpp \
-			   $(TEST_DIR)/test_board.cpp
+			   $(TEST_DIR)/test_board.cpp \
+			   $(TEST_DIR)/test_bot.cpp
 
 
 # Object files in the build directory
-OBJECTS = $(BUILD_DIR)/Board.o $(BUILD_DIR)/Move.o $(BUILD_DIR)/test.o
+OBJECTS = $(BUILD_DIR)/Board.o $(BUILD_DIR)/Move.o $(BUILD_DIR)/test.o $(BUILD_DIR)/Bot.o
 TEST_OBJECTS = $(patsubst $(TEST_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(TEST_SOURCES))
 
 # Ensure the build directory exists

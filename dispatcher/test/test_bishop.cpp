@@ -12,7 +12,7 @@ protected:
     void SetUp() override {
         board = new Board();
         board->fillEmpty();
-        moveGen = new MoveGenerator(board);
+        moveGen = new MoveGenerator();
     }
 
     void TearDown() override {
@@ -32,7 +32,7 @@ TEST_F(BishopTest, BishopMoveGeneration_Edges) {
         for (int file = 0; file < 8; file++) {
             if (rank == 0 || rank == 7 || file == 0 || file == 7) {
                 board->setPieceRF(Board::WHITE_BISHOPS, rank, file);
-                std::vector<Move> moves = moveGen->generatePieceMoves(Board::WHITE_BISHOPS);
+                std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_BISHOPS);
                 ASSERT_EQ(moves.size(), 7);
                 board->fillEmpty();
             }
@@ -46,7 +46,7 @@ TEST_F(BishopTest, BishopMoveGeneration_Corners) {
             Board::WHITE_BISHOPS, 
             std::get<0>(CORNERS[i]), std::get<1>(CORNERS[i])
         );
-        std::vector<Move> moves = moveGen->generatePieceMoves(Board::WHITE_BISHOPS);
+        std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_BISHOPS);
         // for (auto& move : moves) { move.print(); }
         // cout << "new corner" << endl;
         ASSERT_EQ(moves.size(), 7);
@@ -60,24 +60,21 @@ Test move generation for two BISHOPS placed on the board.
 TEST_F(BishopTest, BishopMoveGeneration_Two) {
     board->setPieceRF(Board::WHITE_BISHOPS, 4, 4);
     board->setPieceRF(Board::WHITE_BISHOPS, 4, 3);
-    MoveGenerator moveGen(board);
-    std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_BISHOPS);
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_BISHOPS);
     ASSERT_EQ(moves.size(), 26);
 };
 
 TEST_F(BishopTest, BishopMoveGeneration_Blocked_SameColor) {
     board->setPieceRF(Board::WHITE_BISHOPS, 4, 4);
     board->setPieceRF(Board::WHITE_PAWNS, 5, 5);
-    MoveGenerator moveGen(board);
-    std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_BISHOPS);
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_BISHOPS);
     ASSERT_EQ(moves.size(), 10);
 };
 
 TEST_F(BishopTest, BishopMoveGeneration_Blocked_DiffColor) {
     board->setPieceRF(Board::WHITE_BISHOPS, 4, 4);
     board->setPieceRF(Board::BLACK_PAWNS, 5, 5);
-    MoveGenerator moveGen(board);
-    std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_BISHOPS);
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_BISHOPS);
     ASSERT_EQ(moves.size(), 11); // Bishop can capture the black pawn
 };
 /*
@@ -86,23 +83,20 @@ Tests collision with same color piece at a far distance
 TEST_F(BishopTest, BishopMoveGeneration_Blocked_SameColor_Far) {
     board->setPieceRF(Board::WHITE_BISHOPS, 4, 4);
     board->setPieceRF(Board::WHITE_PAWNS, 6, 6);
-    MoveGenerator moveGen(board);
-    std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_BISHOPS);
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_BISHOPS);
     ASSERT_EQ(moves.size(), 11);
 };
 
 TEST_F(BishopTest, BishopMoveGeneration_SameDiagonal) {
     board->setPieceRF(Board::WHITE_BISHOPS, 0, 0);
     board->setPieceRF(Board::WHITE_BISHOPS, 2, 2);
-    MoveGenerator moveGen(board);
-    std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_BISHOPS);
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_BISHOPS);
     ASSERT_EQ(moves.size(), 11); // 1 + 10 
 };
 
 TEST_F(BishopTest, BishopMoveGeneration_DiffDiagonal) {
     board->setPieceRF(Board::WHITE_BISHOPS, 0, 0);
     board->setPieceRF(Board::WHITE_BISHOPS, 2, 1);
-    MoveGenerator moveGen(board);
-    std::vector<Move> moves = moveGen.generatePieceMoves(Board::WHITE_BISHOPS);
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_BISHOPS);
     ASSERT_EQ(moves.size(), 16); // 7 + 9 
 };
