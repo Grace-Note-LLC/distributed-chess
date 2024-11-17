@@ -52,7 +52,7 @@ TEST_F(AITest, AgainstSelf) {
     board->fillStandard();
     tileState player = WHITE;
     int iter = 0;
-    while (!moveGen->isGameOver(board) && iter < 7) {
+    while (!moveGen->isGameOver(board)) {
         auto best = ai->findBestMove(board, player);
         Move bestMove = best.first;
         int score = best.second;
@@ -65,5 +65,6 @@ TEST_F(AITest, AgainstSelf) {
         iter++;
         player = (player == WHITE) ? BLACK : WHITE;
     }
+    cout << board->getPiece(Board::WHITE_QUEEN) << endl;
     ASSERT_TRUE(moveGen->isGameOver(board));
 }
