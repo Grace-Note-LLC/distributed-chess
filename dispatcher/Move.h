@@ -58,7 +58,7 @@ public:
 
     bool isInCheck(Board board, tileState color);
     bool isCheckmate(Board* board, tileState color);
-    bool isGameOver();
+    bool isGameOver(Board* board);
 
 private:
     // Board* board;  // Pointer to the board object

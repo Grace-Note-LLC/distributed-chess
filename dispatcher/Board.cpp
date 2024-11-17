@@ -97,6 +97,9 @@ void Board::applyMove(Move move) {
     if (!move.isCapture()) return;
     for (auto piece : pivec) {
         if (pieces[piece] & newPosition) {
+            cout << "Captured piece: " << piece << endl;
+            cout << "old position: " << pieces[piece] << endl;
+            cout << "new position: " << newPosition << endl;
             pieces[piece] ^= newPosition;
             break;
         }

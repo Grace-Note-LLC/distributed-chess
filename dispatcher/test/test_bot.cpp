@@ -29,7 +29,7 @@ protected:
 
 TEST_F(AITest, FindBestMoveInInitialPosition) {
     board->fillStandard();
-    Move bestMove = ai->findBestMove(board, WHITE);
+    Move bestMove = ai->findBestMove(board, WHITE).first;
 
     // Print the best move
     std::cout << "Best move in initial position: " << std::endl;
@@ -50,17 +50,20 @@ TEST_F(AITest, FindBestMoveInInitialPosition) {
 
 TEST_F(AITest, AgainstSelf) {
     board->fillStandard();
-    tileState player = BLACK;
+    tileState player = WHITE;
     int iter = 0;
-    while (!moveGen->isGameOver()) {
-        Move bestMove = ai->findBestMove(board, player);
+    while (!moveGen->isGameOver(board) && iter < 7) {
+        auto best = ai->findBestMove(board, player);
+        Move bestMove = best.first;
+        int score = best.second;
+
         board->applyMove(bestMove);
-        player = (player == WHITE) ? BLACK : WHITE;
         cout << endl << "ITER: " << iter << endl;
-        iter++;
-        cout << "Best move for:" << (player == WHITE ? "WHITE" : "BLACK") << endl;
+        cout << "Best: " << (player == WHITE ? "WHITE" : "BLACK") << " : " << score << endl;
         bestMove.print();
         board->prettyPrint();
+        iter++;
+        player = (player == WHITE) ? BLACK : WHITE;
     }
-    ASSERT_TRUE(moveGen->isGameOver());
+    ASSERT_TRUE(moveGen->isGameOver(board));
 }

@@ -284,17 +284,12 @@ Asks the game:
 */
 bool MoveGenerator::isCheckmate(Board* board, tileState color) {
     if (!isInCheck(*board, color)) { return false; }
-
-    // Generate all possible moves for the given color
     std::vector<Move> allMoves = this->generateAllMoves(*board, color);
 
     // Check if any of the moves result in a non-check position
     for (const auto& move : allMoves) {
-        // Apply the move to a copy of the board
         Board copy = *board;
         copy.applyMove(move);
-
-        // Check if the king is still in check
         if (!isInCheck(copy, color)) {
             return false;
         }
@@ -305,6 +300,24 @@ bool MoveGenerator::isCheckmate(Board* board, tileState color) {
 /*
 Check if the game is over.
 */
-bool MoveGenerator::isGameOver() {
+bool MoveGenerator::isGameOver(Board* board) {
+    if (isCheckmate(board, WHITE)) {
+        cout << "Checkmate for WHITE" << endl;
+        return true;
+    }
+    if (isCheckmate(board, BLACK)) {
+        cout << "Checkmate for BLACK" << endl;
+        return true;
+    }
+
+    // Check for stalemate
+    if (generateAllMoves(*board, WHITE).size() == 0) {
+        cout << "Stalemate for WHITE" << endl;
+        return true;
+    }
+    if (generateAllMoves(*board, BLACK).size() == 0) {
+        cout << "Stalemate for BLACK" << endl;
+        return true;
+    }
     return false;
 }

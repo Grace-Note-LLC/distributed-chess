@@ -5,6 +5,7 @@
 
 #include "../Board.h"
 #include "../Move.h"
+#include "../Bot.h"
 #include "../Utils.h"
 
 using namespace std;
@@ -153,8 +154,77 @@ TEST_F(BoardTest, Checkmate_Simple) {
     board->setPieceRF(Board::WHITE_PAWNS, 1, 1);
     board->setPieceRF(Board::BLACK_ROOKS, 4, 0);
     board->setPieceRF(Board::BLACK_ROOKS, 0, 4);
+    board->prettyPrint();
     ASSERT_TRUE(moveGen->isCheckmate(board, WHITE));
 }
+
+TEST_F(BoardTest, Checkmate_BackRank) {
+    board->setPieceRF(Board::WHITE_KING, 0, 0);
+    board->setPieceRF(Board::WHITE_PAWNS, 1, 0);
+    board->setPieceRF(Board::WHITE_PAWNS, 1, 1);
+    board->setPieceRF(Board::BLACK_ROOKS, 0, 7);
+    board->prettyPrint();
+    ASSERT_TRUE(moveGen->isCheckmate(board, WHITE));
+}
+
+/*
+WHITE_KING captures a rook and avoids checkmate.
+*/
+TEST_F(BoardTest, Checkmate_DoubleRook) {
+    board->setPieceRF(Board::WHITE_KING, 0, 0);
+    board->setPieceRF(Board::BLACK_ROOKS, 0, 1);
+    board->setPieceRF(Board::BLACK_ROOKS, 1, 0);
+    board->prettyPrint();
+    ASSERT_FALSE(moveGen->isCheckmate(board, WHITE));
+}
+
+TEST_F(BoardTest, Checkmate_QueenAndRook) {
+    board->setPieceRF(Board::WHITE_KING, 0, 0);
+    board->setPieceRF(Board::BLACK_QUEEN, 1, 1);
+    board->setPieceRF(Board::BLACK_ROOKS, 0, 1);
+    board->prettyPrint();
+    ASSERT_TRUE(moveGen->isCheckmate(board, WHITE));
+}
+
+TEST_F(BoardTest, Checkmate_KnightAndBishop) {
+    board->setPieceRF(Board::WHITE_KING, 0, 0);
+    board->setPieceRF(Board::BLACK_KNIGHTS, 2, 1);
+    board->setPieceRF(Board::BLACK_BISHOPS, 1, 2);
+    board->setPieceRF(Board::BLACK_BISHOPS, 2, 2);
+    board->setPieceRF(Board::BLACK_ROOKS, 5, 0);
+    board->prettyPrint();
+    ASSERT_TRUE(moveGen->isCheckmate(board, WHITE));
+}
+
+TEST_F(BoardTest, Checkmate_Escape_SmotheredMate_OnCapture) {
+    board->setPieceRF(Board::WHITE_KING, 0, 0);
+    board->setPieceRF(Board::WHITE_PAWNS, 1, 0);
+    board->setPieceRF(Board::WHITE_PAWNS, 1, 1);
+    board->setPieceRF(Board::WHITE_PAWNS, 0, 1);
+    board->setPieceRF(Board::BLACK_KNIGHTS, 1, 2);
+    board->prettyPrint();
+    ASSERT_TRUE(moveGen->isCheckmate(board, WHITE));
+}
+
+TEST_F(BoardTest, Checkmate_SingleMove) {
+    board->fillStandard();
+    board->setPieceBin(Board::WHITE_PAWNS, 0x000000001000EF00);
+    board->prettyPrint();
+    auto boardCopy = new Board(*board);
+    ChessBot* ai = new ChessBot(*moveGen);
+    auto best = ai->findBestMove(board, BLACK);
+
+    ASSERT_TRUE(board->boardEquals(boardCopy));
+
+    best.first.print();
+
+    board->applyMove(best.first);
+    board->prettyPrint();
+
+    ASSERT_FALSE(moveGen->isCheckmate(board, BLACK));
+    ASSERT_FALSE(moveGen->isCheckmate(board, WHITE));
+}
+
 
 /*
 WHITE_KING escapes being checked by capturing the BLACK_ROOK 

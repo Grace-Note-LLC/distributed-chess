@@ -74,6 +74,15 @@ public:
 
     void applyMove(Move move);
 
+    bool boardEquals(Board* other) {
+        for (int i = 0; i < 12; i++) {
+            if (pieces[i] != other->getPiece(pivec[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 private:
     uint64_t pieces[12] = {};
     const PieceIndex pivec[12] = {
