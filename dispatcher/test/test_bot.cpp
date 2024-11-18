@@ -59,11 +59,6 @@ TEST_F(AITest, AgainstSelf) {
     int iter = 0;
     while (!moveGen->isGameOver(board)) {
         auto best = ai->findBestMove(board, player);
-        if (best.first.getNewPosition() == 0) {
-            cout << "No moves left for " << (player == WHITE ? "WHITE" : "BLACK") << endl;
-            moveGen->isCheckmate(board, player);
-            break;
-        }
         Move bestMove = best.first;
         int score = best.second;
 
@@ -77,4 +72,5 @@ TEST_F(AITest, AgainstSelf) {
         iter++;
         player = (player == WHITE) ? BLACK : WHITE;
     }
+    ASSERT_TRUE(moveGen->isGameOver(board));
 }

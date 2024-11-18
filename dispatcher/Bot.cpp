@@ -46,8 +46,8 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
 
             // Lock to update the best score and move
             std::lock_guard<std::mutex> lock(mutex);
-            if ((player == WHITE && score > bestScore) || 
-                (player == BLACK && score < bestScore)) {
+            if ((player == WHITE && score >= bestScore) || 
+                (player == BLACK && score <= bestScore)) {
 
                 bestScore = score;
                 bestMove = currentMove;
