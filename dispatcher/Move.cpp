@@ -63,6 +63,21 @@ std::vector<Move> MoveGenerator::generatePieceMoves(Board* board, Board::PieceIn
     return moves;
 }
 
+/*
+If the moves were generated on WHITE's turn, remove any moves that target 
+the BLACK king and vice versa.
+*/
+vector<Move> MoveGenerator::removeKingTargetingMoves(const vector<Move>& moves, uint64_t opponentKingPosition) {
+    std::vector<Move> filteredMoves;
+    for (const auto& move : moves) {
+        if (move.getNewPosition() != opponentKingPosition) {
+            filteredMoves.push_back(move);
+        }
+    }
+    return filteredMoves;
+}
+
+
 bool MoveGenerator::isValidMove(const Move& move) {
     // Implement validation logic based on board state and piece rules
     return true; // Placeholder

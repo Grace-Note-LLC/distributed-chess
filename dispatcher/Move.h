@@ -18,7 +18,7 @@ class Board;  // Forward declaration of Board class
 class Move {
 public:
     Move(
-        Board::PieceIndex pieceType, uint64_t newPosition, uint64_t oldPosition,bool isCapture);
+        Board::PieceIndex pieceType, uint64_t newPosition, uint64_t oldPosition, bool isCapture);
     Move() {}
 
     Board::PieceIndex getPieceType() const { return pieceType; }
@@ -51,6 +51,8 @@ public:
 
     // Check if a move is valid based on board state and piece rules
     bool isValidMove(const Move& move);
+
+    std::vector<Move> removeKingTargetingMoves(const std::vector<Move>& moves, uint64_t opponentKingPosition);
 
     tileState getOccupant(Board* board, Board::PieceIndex, uint64_t proposedMove);
 

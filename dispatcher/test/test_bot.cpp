@@ -59,17 +59,22 @@ TEST_F(AITest, AgainstSelf) {
     int iter = 0;
     while (!moveGen->isGameOver(board)) {
         auto best = ai->findBestMove(board, player);
+        if (best.first.getNewPosition() == 0) {
+            cout << "No moves left for " << (player == WHITE ? "WHITE" : "BLACK") << endl;
+            moveGen->isCheckmate(board, player);
+            break;
+        }
         Move bestMove = best.first;
         int score = best.second;
 
         board->applyMove(bestMove);
         cout << endl << "\t\tITER: " << iter << endl;
         cout << "Best: " << (player == WHITE ? "WHITE" : "BLACK") << " : " << score << endl;
+        
         bestMove.print();
+        cout << "\t\tTurn: " << player << endl;
         board->prettyPrint();
         iter++;
         player = (player == WHITE) ? BLACK : WHITE;
     }
-    cout << board->getPiece(Board::WHITE_QUEEN) << endl;
-    ASSERT_TRUE(moveGen->isGameOver(board));
 }

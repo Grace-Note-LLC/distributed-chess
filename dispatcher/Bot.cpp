@@ -22,13 +22,15 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
 
     // Generate all possible moves for the current player
     MoveGenerator moveGen;
-    std::vector<Move> possibleMoves = moveGen.generateAllMoves(*board, player);
+    std::vector<Move> possibleMoves =  moveGen.generateAllMoves(*board, player);
+    possibleMoves = moveGen.removeKingTargetingMoves(possibleMoves, 
+        board->getPiece((player == WHITE) ? Board::BLACK_KING : Board::WHITE_KING)
+    );
     
     // sort moves by captures first
     std::sort(possibleMoves.begin(), possibleMoves.end(), [](const Move& a, const Move& b) {
         return a.isCapture() && !b.isCapture();
     });
-    // cout << "Possible moves: " << possibleMoves.size() << endl;
 
     // Mutex to synchronize access to bestMove and bestScore
     std::mutex mutex;
@@ -44,7 +46,9 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
 
             // Lock to update the best score and move
             std::lock_guard<std::mutex> lock(mutex);
-            if ((player == WHITE && score > bestScore) || (player == BLACK && score < bestScore)) {
+            if ((player == WHITE && score > bestScore) || 
+                (player == BLACK && score < bestScore)) {
+
                 bestScore = score;
                 bestMove = currentMove;
             }
