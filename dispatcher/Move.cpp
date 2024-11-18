@@ -11,13 +11,12 @@ using namespace std;
 const int WHITE_PAWN_DOUBLE_RANK = 1;
 const int BLACK_PAWN_DOUBLE_RANK = 6;
 
-Move::Move(Board::PieceIndex pieceType, uint64_t newPosition, uint64_t oldPosition, bool isCapture, Board *prevBoard) {
+Move::Move(Board::PieceIndex pieceType, uint64_t newPosition, uint64_t oldPosition, bool isCapture) {
     
     this->newPosition = newPosition;
     this->oldPosition = oldPosition;
     this->pieceType = pieceType;
     this->capture = isCapture;
-    this->prevBoard = prevBoard;
 }
 
 std::vector<Move> MoveGenerator::generateAllMoves(Board board, tileState color) {
@@ -82,7 +81,7 @@ void MoveGenerator::generatePawnDiagonalCaptures(
         auto color = static_cast<tileState>(pieceType % 2);
         auto occupant = getOccupant(board, pieceType, proposedMove);
         if (occupant != color && occupant != EMPTY) {
-            moves.push_back(Move(pieceType, proposedMove, oldPosition, true, board));
+            moves.push_back(Move(pieceType, proposedMove, oldPosition, true));
         }
     }
 }
@@ -112,7 +111,7 @@ std::vector<Move> MoveGenerator::generatePawnMoves(Board* board, Board::PieceInd
         // Check for diagonal captures
         for (const auto& os : captureOffsets)
             generatePawnDiagonalCaptures(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
-        piece ^= gridToBinIdx(rank, file);
+        piece &= piece - 1;
     }
     return moves;
 }
@@ -141,7 +140,7 @@ std::vector<Move> MoveGenerator::generateRookMoves(Board* board, Board::PieceInd
                 addMoveIfValid(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
             }
         }
-        piece ^= gridToBinIdx(rank, file);
+        piece &= piece - 1;
     }
     return moves;
 }
@@ -158,7 +157,7 @@ std::vector<Move> MoveGenerator::generateKnightMoves(Board* board, Board::PieceI
 
         for (const auto& os : knightOffsets)
             addMoveIfValid(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
-        piece ^= gridToBinIdx(rank, file);
+        piece &= piece - 1;
     }
     return moves;
 }
@@ -187,7 +186,7 @@ std::vector<Move> MoveGenerator::generateBishopMoves(Board* board, Board::PieceI
                 addMoveIfValid(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
             }
         }
-        piece ^= gridToBinIdx(rank, file);
+        piece &= piece - 1;
     }
     return moves;
 }
@@ -214,7 +213,7 @@ std::vector<Move> MoveGenerator::generateQueenMoves(Board* board, Board::PieceIn
                 addMoveIfValid(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
             }
         }
-        piece ^= gridToBinIdx(rank, file);
+        piece &= piece - 1;
     }
     return moves;
 }
@@ -256,7 +255,7 @@ void MoveGenerator::addMoveIfValid(
         auto occupant = getOccupant(board, pieceType, proposedMove);
         if (occupant == pieceColor) { return; }
         moves.push_back(
-            Move(pieceType, proposedMove, oldPosition, occupant != EMPTY, board));
+            Move(pieceType, proposedMove, oldPosition, occupant != EMPTY));
     }
 }
 
