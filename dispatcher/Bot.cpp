@@ -28,7 +28,7 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
     std::sort(possibleMoves.begin(), possibleMoves.end(), [](const Move& a, const Move& b) {
         return a.isCapture() && !b.isCapture();
     });
-    cout << "Possible moves: " << possibleMoves.size() << endl;
+    // cout << "Possible moves: " << possibleMoves.size() << endl;
 
     // Mutex to synchronize access to bestMove and bestScore
     std::mutex mutex;
@@ -114,13 +114,13 @@ int ChessBot::evaluateBoard(Board* board, tileState player) {
     score += board->getPieceCount(Board::WHITE_KNIGHTS) * 30;
     score += board->getPieceCount(Board::WHITE_BISHOPS) * 30;
     score += board->getPieceCount(Board::WHITE_ROOKS) * 50;
-    score += board->getPieceCount(Board::WHITE_QUEEN) * 90;
+    score += board->getPieceCount(Board::WHITE_QUEEN) * 100;
     
     score -= board->getPieceCount(Board::BLACK_PAWNS) * 10;
     score -= board->getPieceCount(Board::BLACK_KNIGHTS) * 30;
     score -= board->getPieceCount(Board::BLACK_BISHOPS) * 30;
     score -= board->getPieceCount(Board::BLACK_ROOKS) * 50;
-    score -= board->getPieceCount(Board::BLACK_QUEEN) * 90;
+    score -= board->getPieceCount(Board::BLACK_QUEEN) * 100;
     
     // Mobility
     score += whiteMoves.size();

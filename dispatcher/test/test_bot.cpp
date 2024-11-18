@@ -20,6 +20,11 @@ protected:
 
     void TearDown() override {
         delete board;
+        delete moveGen;
+        delete ai;
+        board = nullptr;
+        moveGen = nullptr;
+        ai = nullptr;
     }
 
     Board* board;
@@ -58,7 +63,7 @@ TEST_F(AITest, AgainstSelf) {
         int score = best.second;
 
         board->applyMove(bestMove);
-        cout << endl << "ITER: " << iter << endl;
+        cout << endl << "\t\tITER: " << iter << endl;
         cout << "Best: " << (player == WHITE ? "WHITE" : "BLACK") << " : " << score << endl;
         bestMove.print();
         board->prettyPrint();
