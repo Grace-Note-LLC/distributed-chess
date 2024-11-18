@@ -203,6 +203,18 @@ TEST_F(BoardTest, Checkmate_Escape_SmotheredMate_OnCapture) {
     board->setPieceRF(Board::WHITE_PAWNS, 0, 1);
     board->setPieceRF(Board::BLACK_KNIGHTS, 1, 2);
     board->prettyPrint();
+    ASSERT_TRUE(moveGen->isInCheck(*board, WHITE));
+    ASSERT_FALSE(moveGen->isCheckmate(board, WHITE));
+}
+
+TEST_F(BoardTest, Checkmate_NoEscape_SmotheredMate) {
+    board->setPieceRF(Board::WHITE_KING, 0, 0);
+    board->setPieceRF(Board::WHITE_PAWNS, 1, 0);
+    board->setPieceRF(Board::WHITE_PAWNS, 1, 1);
+    board->setPieceRF(Board::WHITE_ROOKS, 0, 1);
+    board->setPieceRF(Board::BLACK_KNIGHTS, 1, 2);
+    board->prettyPrint();
+    ASSERT_TRUE(moveGen->isInCheck(*board, WHITE));
     ASSERT_TRUE(moveGen->isCheckmate(board, WHITE));
 }
 
