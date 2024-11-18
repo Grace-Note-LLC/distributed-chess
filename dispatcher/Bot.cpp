@@ -16,23 +16,28 @@
 
 using namespace std;
 
-pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
-    int bestScore = (player == WHITE) ? NEG_INF : POS_INF;
-    Move bestMove;
-
-    // Generate all possible moves for the current player
+vector<Move> ChessBot::generateAndFilterMoves(Board* board, tileState player) {
     MoveGenerator moveGen;
-    std::vector<Move> possibleMoves =  moveGen.generateAllMoves(*board, player);
+    std::vector<Move> possibleMoves = moveGen.generateAllMoves(*board, player);
     possibleMoves = moveGen.removeKingTargetingMoves(possibleMoves, 
         board->getPiece((player == WHITE) ? Board::BLACK_KING : Board::WHITE_KING)
     );
     possibleMoves = moveGen.removeMovesLeavingKingInCheck(board, possibleMoves, player);
     
-    // sort moves by captures first
+    // Sort moves by captures first
     std::sort(possibleMoves.begin(), possibleMoves.end(), [](const Move& a, const Move& b) {
         return a.isCapture() && !b.isCapture();
     });
+    return possibleMoves;
+}
 
+
+pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
+    int bestScore = (player == WHITE) ? NEG_INF : POS_INF;
+    Move bestMove;
+
+    // Generate all possible moves for the current player
+    vector<Move> possibleMoves = generateAndFilterMoves(board, player);
     // Mutex to synchronize access to bestMove and bestScore
     std::mutex mutex;
 
