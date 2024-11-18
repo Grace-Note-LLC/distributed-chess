@@ -53,6 +53,8 @@ public:
     bool isValidMove(const Move& move);
 
     std::vector<Move> removeKingTargetingMoves(const std::vector<Move>& moves, uint64_t opponentKingPosition);
+    std::vector<Move> removeMovesLeavingKingInCheck(Board* board, const std::vector<Move>& moves, tileState color);
+
 
     tileState getOccupant(Board* board, Board::PieceIndex, uint64_t proposedMove);
 

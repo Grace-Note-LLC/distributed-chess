@@ -77,6 +77,28 @@ vector<Move> MoveGenerator::removeKingTargetingMoves(const vector<Move>& moves, 
     return filteredMoves;
 }
 
+/*
+Removes any moves that would leave the king in check after the move is applied.
+*/
+std::vector<Move> MoveGenerator::removeMovesLeavingKingInCheck(
+    Board* board, 
+    const std::vector<Move>& moves, 
+    tileState color) {
+
+    std::vector<Move> validMoves;
+    for (const auto& move : moves) {
+        if (!isInCheck(*board, color)) { 
+            validMoves.push_back(move); 
+        } else {
+            Board copy = *board;
+            copy.applyMove(move);
+            if (!isInCheck(copy, color)) {
+                validMoves.push_back(move);
+            }
+        }
+    }
+    return validMoves;
+}
 
 bool MoveGenerator::isValidMove(const Move& move) {
     // Implement validation logic based on board state and piece rules

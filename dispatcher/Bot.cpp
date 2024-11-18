@@ -26,6 +26,7 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
     possibleMoves = moveGen.removeKingTargetingMoves(possibleMoves, 
         board->getPiece((player == WHITE) ? Board::BLACK_KING : Board::WHITE_KING)
     );
+    possibleMoves = moveGen.removeMovesLeavingKingInCheck(board, possibleMoves, player);
     
     // sort moves by captures first
     std::sort(possibleMoves.begin(), possibleMoves.end(), [](const Move& a, const Move& b) {
