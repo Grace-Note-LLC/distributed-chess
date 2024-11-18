@@ -5,6 +5,8 @@
 
 #include "Utils.h" 
 
+#include <string>
+
 /*
 Bit implementation of a chess board. Each piece is represented by a 64-bit integer, 
 unfolded to an 8x8 grid. The MSB is the bottom left corner of the board (A1), and 
@@ -63,7 +65,7 @@ public:
 
     uint64_t& getPiece(PieceIndex index) { return pieces[index]; }
     const PieceIndex* getPieceIndices() { return pivec; }
-    char pieceAsASCII(PieceIndex index);
+    std::string pieceAsASCII(PieceIndex index);
     int getPieceCount(PieceIndex index) { return __builtin_popcountll(pieces[index]); }
 
     void setPieceBin(PieceIndex index, uint64_t piece) { pieces[index] = piece; }

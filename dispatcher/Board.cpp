@@ -6,6 +6,15 @@
 
 using namespace std;
 
+
+#define ANSI_DARK_YELLOW_BACKGROUND "\e[48;5;250m"
+#define ANSI_BRIGHT_YELLOW_BACKGROUND "\e[48;5;255m"
+#define ANSI_WHITE_FOREGROUND "\e[38;5;15m"
+#define ANSI_BLACK_FOREGROUND "\e[38;5;0m"
+#define ANSI_ESCAPE "\033[0m"
+
+
+
 // Constructor implementation
 Board::Board() {
     for (auto piece : pivec) pieces[piece] = 0ULL;
@@ -14,20 +23,20 @@ Board::Board() {
 /*
 Returns the enum to a char
 */
-char Board::pieceAsASCII(Board::PieceIndex index) {
-    if (index == Board::WHITE_PAWNS)    return 'P';
-    if (index == Board::BLACK_PAWNS)    return 'p';
-    if (index == Board::WHITE_ROOKS)    return 'R';
-    if (index == Board::BLACK_ROOKS)    return 'r';
-    if (index == Board::WHITE_KNIGHTS)  return 'N';
-    if (index == Board::BLACK_KNIGHTS)  return 'n';
-    if (index == Board::WHITE_BISHOPS)  return 'B';
-    if (index == Board::BLACK_BISHOPS)  return 'b';
-    if (index == Board::WHITE_QUEEN)    return 'Q';
-    if (index == Board::BLACK_QUEEN)    return 'q';
-    if (index == Board::WHITE_KING)     return 'K';
-    if (index == Board::BLACK_KING)     return 'k';
-    return ' ';
+string Board::pieceAsASCII(Board::PieceIndex index) {
+    if (index == Board::WHITE_PAWNS)    return "\u2659";
+    if (index == Board::BLACK_PAWNS)    return "\u265F";
+    if (index == Board::WHITE_ROOKS)    return "\u2656";
+    if (index == Board::BLACK_ROOKS)    return "\u265C";
+    if (index == Board::WHITE_KNIGHTS)  return "\u2658";
+    if (index == Board::BLACK_KNIGHTS)  return "\u265E";
+    if (index == Board::WHITE_BISHOPS)  return "\u2657";
+    if (index == Board::BLACK_BISHOPS)  return "\u265D";
+    if (index == Board::WHITE_QUEEN)    return "\u2655";
+    if (index == Board::BLACK_QUEEN)    return "\u265B";
+    if (index == Board::WHITE_KING)     return "\u2654";
+    if (index == Board::BLACK_KING)     return "\u265A";
+    return " ";
 }
 
 /*
@@ -39,28 +48,30 @@ by uppercase letters.
 This can be used for debugging purposes.
 */
 void Board::prettyPrint() {
-    vector<char> textBoard;
-    for (int i = 0; i < 64; i++) textBoard.push_back(' ');
+    vector<string> textBoard;
+    for (int i = 0; i < 64; i++) textBoard.push_back(" ");
 
     for (Board::PieceIndex piece : pivec) {
         if (Board::getPiece(piece) == 0) continue;
         for (int i = 0; i < 64; i++) {
             uint64_t mask = 1ULL << i;
             if ((mask & Board::getPiece(piece)) > 0) {
-                textBoard[i] = pieceAsASCII(piece); 
+                textBoard[i] = ((piece % 2) ? ANSI_WHITE_FOREGROUND : ANSI_BLACK_FOREGROUND) + pieceAsASCII(piece); 
             }
         }
     }
 
-    cout << "     " << "0 1 2 3 4 5 6 7" << endl;
-    cout << "     " << "---------------";
+    cout << "    " << "\033[4m" << "\uFF10\uFF11\uFF12\uFF13\uFF14\uFF15\uFF16\uFF17" <<  ANSI_ESCAPE << endl;
+
     for (int rank = 7; rank >= 0; rank--) {
-        cout << endl << "  " << rank << "| ";
+        cout << "  " << rank << "|";
         for (int file = 0; file < 8; file++) {
-            cout << textBoard[(rank * 8) + file] << " ";
+            string backgroundColor = ((!(file % 2) && (rank % 2)) || ((file % 2) && !(rank % 2))) ? ANSI_BRIGHT_YELLOW_BACKGROUND : ANSI_DARK_YELLOW_BACKGROUND;
+            cout << backgroundColor << textBoard[(rank * 8) + file] << " " << ANSI_ESCAPE;
         }
+        cout << "|" << endl;
     }
-    cout << endl;
+    cout << "    " << "\u203E\u203E\u203E\u203E\u203E\u203E\u203E\u203E\u203E\u203E\u203E\u203E\u203E\u203E\u203E\u203E" << endl;
 }
 
 
