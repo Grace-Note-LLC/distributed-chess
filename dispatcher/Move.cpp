@@ -6,6 +6,8 @@
 #include "Utils.h"
 
 #include <iostream>
+#include <algorithm>
+
 using namespace std;
 
 const int WHITE_PAWN_DOUBLE_RANK = 1;
@@ -28,6 +30,20 @@ std::vector<Move> MoveGenerator::generateAllMoves(Board board, tileState color) 
         moves.insert(moves.end(), pieceMoves.begin(), pieceMoves.end());
     }
     return moves;
+}
+
+vector<Move> MoveGenerator::generateAndFilterMoves(Board* board, tileState player) {
+    std::vector<Move> possibleMoves = generateAllMoves(*board, player);
+    possibleMoves = removeKingTargetingMoves(possibleMoves, 
+        board->getPiece((player == WHITE) ? Board::BLACK_KING : Board::WHITE_KING)
+    );
+    possibleMoves = removeMovesLeavingKingInCheck(board, possibleMoves, player);
+    
+    // Sort moves by captures first
+    std::sort(possibleMoves.begin(), possibleMoves.end(), [](const Move& a, const Move& b) {
+        return a.isCapture() && !b.isCapture();
+    });
+    return possibleMoves;
 }
 
 std::vector<Move> MoveGenerator::generatePieceMoves(Board* board, Board::PieceIndex pieceType){
@@ -346,11 +362,11 @@ bool MoveGenerator::isGameOver(Board* board) {
     }
 
     // Check for stalemate
-    if (generateAllMoves(*board, WHITE).size() == 0) {
+    if (generateAndFilterMoves(board, WHITE).size() == 0) {
         cout << "Stalemate for WHITE" << endl;
         return true;
     }
-    if (generateAllMoves(*board, BLACK).size() == 0) {
+    if (generateAndFilterMoves(board, BLACK).size() == 0) {
         cout << "Stalemate for BLACK" << endl;
         return true;
     }

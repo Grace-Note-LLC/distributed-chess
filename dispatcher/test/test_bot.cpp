@@ -104,3 +104,33 @@ TEST_F(AITest, NoMoveIntoCheck) {
     // Test that white is not in check
     ASSERT_FALSE(moveGen->isInCheck(*board, WHITE));
 }
+
+/**
+ * This test recreates a custom position that caused a segfault.
+ */
+TEST_F(AITest, NoSegFault) {
+    // Set up black pieces
+    board->setPieceBin(Board::BLACK_PAWNS, 0b0000000001100010000000000001000000000000100000000000000000000000);
+    board->setPieceRF(Board::BLACK_KNIGHTS, 4, 0);
+    board->setPieceRF(Board::BLACK_KNIGHTS, 5, 4);
+    board->setPieceRF(Board::BLACK_KING, 5, 5);
+    board->setPieceRF(Board::BLACK_BISHOPS, 4, 5);
+    board->setPieceRF(Board::BLACK_ROOKS, 3, 7);
+    board->setPieceRF(Board::BLACK_ROOKS, 0, 5);
+    board->setPieceRF(Board::BLACK_QUEEN, 1, 2);
+
+    // Set up white pieces
+    board->setPieceBin(Board::WHITE_PAWNS, 0b0000100100000000000000000000000000000000000000000000000000000000);
+    board->setPieceRF(Board::WHITE_KING, 2, 4);
+    // board->prettyPrint();
+
+    // Black to move
+    if (!moveGen->isGameOver(board)) {
+        board->applyMove(ai->findBestMove(board, WHITE).first);
+        // board->prettyPrint();
+    } else {
+        cout << "GAME OVER" << endl;
+    }
+
+    // Test that game is still running or something, idk
+}
