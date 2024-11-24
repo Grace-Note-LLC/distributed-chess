@@ -1,34 +1,41 @@
-.tile{
-    display: grid;
-    place-content: center;
-    width: 100px;
-    height: 100px;
-}
-
-.black-tile{
-    background-color: #779556;
-}
-
-.white-tile{
-    background-color: #ebecd0;
-}
-
-.tile img{
-    width: 80px
-}
-
-.tile .chess-piece {
-    width: 100px;
-    height: 100px;
-    background-repeat: no-repeat;
+.tile {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  
+  .black-tile {
+    background-color: #769656;
+  }
+  
+  .white-tile {
+    background-color: #eeeed2;
+  }
+  
+  .chess-piece {
+    width: 90%;
+    height: 90%;
     background-position: center;
-    background-size: 80px;
-}
-
-.tile .chess-piece:hover{
-    cursor: grab
-}
-
-.tile .chess-piece:active {
-    cursor: grabbing;
-}
+    background-repeat: no-repeat;
+    background-size: contain;
+    cursor: pointer;
+  }
+  
+  .valid-move {
+    position: relative;
+  }
+  
+  .valid-move::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+  }

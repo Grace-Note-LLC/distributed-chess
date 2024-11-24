@@ -1,14 +1,13 @@
-import React from 'react'
-import './App.css'
-import Board from './components/Board';
+import React from 'react';
+import ChessBoard from './components/ChessBoard';
+import './styles/ChessBoard.css';
 
 function App() {
   return (
-    <div>
-      <Board/>
+    <div className="App">
+      <ChessBoard />
     </div>
-  )
-
+  );
 }
 
-export default App;
+export default App; 

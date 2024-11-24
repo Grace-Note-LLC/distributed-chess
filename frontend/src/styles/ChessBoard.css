@@ -1,0 +1,27 @@
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 50px);
+  grid-template-rows: repeat(8, 50px);
+  border: 1px solid #333;
+}
+
+.square {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.square-black {
+  background-color: #b58863;
+}
+
+.square-white {
+  background-color: #f0d9b5;
+}
+
+.piece {
+  cursor: move;
+  font-size: 30px;
+} 
