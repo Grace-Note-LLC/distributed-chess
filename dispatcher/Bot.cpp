@@ -21,7 +21,7 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
     Move bestMove;
 
     // Generate all possible moves for the current player
-    vector<Move> possibleMoves = generateAndFilterMoves(board, player);
+    vector<Move> possibleMoves = moveGen.generateAndFilterMoves(board, player);
     // if (possibleMoves.size() == 0) {
     //     cout << "No moves available" << endl;
     //     return make_pair(bestMove, bestScore);
@@ -58,9 +58,6 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
     }
 
     pair<Move, int> p = make_pair(bestMove, bestScore);
-
-    cout << "DONE WITH LOOP" << endl;
-
     return p;
 }
 
