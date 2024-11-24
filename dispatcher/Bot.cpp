@@ -21,8 +21,8 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
 
     // Generate all possible moves for the current player
     vector<Move> possibleMoves = moveGen.generateAndFilterMoves(board, player);
-    // Mutex to synchronize access to bestMove and bestScore
 
+    // Mutex to synchronize access to bestMove and bestScore
     std::mutex mutex;
 
     // Use futures to parallelize move evaluations
@@ -49,10 +49,6 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
     for (auto& future : futures) {
         future.get();
     }
-
-    // if (((player == WHITE) && (bestScore == NEG_INF)) || ((player == BLACK) && (bestScore == POS_INF))) {
-    //     cerr << "ERROR: STALEMATE DETECTED" << endl;
-    // }
 
     pair<Move, int> p = make_pair(bestMove, bestScore);
 
