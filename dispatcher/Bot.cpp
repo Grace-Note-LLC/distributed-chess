@@ -39,6 +39,13 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
 
     // Generate all possible moves for the current player
     vector<Move> possibleMoves = generateAndFilterMoves(board, player);
+    // if (possibleMoves.size() == 0) {
+    //     cout << "No moves available" << endl;
+    //     return make_pair(bestMove, bestScore);
+    // }
+    // for (auto& move : possibleMoves) {
+    //     move.print();
+    // }
     // Mutex to synchronize access to bestMove and bestScore
     std::mutex mutex;
 
@@ -82,6 +89,7 @@ int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState pl
             Board boardCopy = *board;
             boardCopy.applyMove(move);
             int eval = minimax(&boardCopy, depth - 1, alpha, beta, BLACK);
+            if (move.isCapture()) { eval += 90; }
             maxEval = std::max(maxEval, eval);
             alpha = std::max(alpha, eval);
             if (beta <= alpha) { break; }
@@ -93,6 +101,7 @@ int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState pl
             Board boardCopy = *board;
             boardCopy.applyMove(move);
             int eval = minimax(&boardCopy, depth - 1, alpha, beta, WHITE);
+            if (move.isCapture()) { eval -= 90; }
             minEval = std::min(minEval, eval);
             beta = std::min(beta, eval);
             if (beta <= alpha) { break; }
