@@ -46,6 +46,8 @@ public:
     // Generate all legal WHITE moves for the current board state
     std::vector<Move> generateAllMoves(Board board, tileState color);
 
+    vector<Move> generateAndFilterMoves(Board* board, tileState player);
+
     // Generate moves for a specific piece type
     std::vector<Move> generatePieceMoves(Board* board, Board::PieceIndex pieceType);
 

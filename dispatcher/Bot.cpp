@@ -9,29 +9,12 @@
 #include <mutex>
 #include <future>
 #include <iostream>
-#include <algorithm>
 
 #define MAX_DEPTH 3
 #define NEG_INF -100000
 #define POS_INF 100000
 
 using namespace std;
-
-vector<Move> ChessBot::generateAndFilterMoves(Board* board, tileState player) {
-    MoveGenerator moveGen;
-    std::vector<Move> possibleMoves = moveGen.generateAllMoves(*board, player);
-    possibleMoves = moveGen.removeKingTargetingMoves(possibleMoves, 
-        board->getPiece((player == WHITE) ? Board::BLACK_KING : Board::WHITE_KING)
-    );
-    possibleMoves = moveGen.removeMovesLeavingKingInCheck(board, possibleMoves, player);
-    
-    // Sort moves by captures first
-    std::sort(possibleMoves.begin(), possibleMoves.end(), [](const Move& a, const Move& b) {
-        return a.isCapture() && !b.isCapture();
-    });
-    return possibleMoves;
-}
-
 
 pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
     int bestScore = (player == WHITE) ? NEG_INF : POS_INF;
@@ -74,7 +57,11 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
         future.get();
     }
 
-    return make_pair(bestMove, bestScore);
+    pair<Move, int> p = make_pair(bestMove, bestScore);
+
+    cout << "DONE WITH LOOP" << endl;
+
+    return p;
 }
 
 int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState player) {
