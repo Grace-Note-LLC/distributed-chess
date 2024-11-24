@@ -1,6 +1,7 @@
 #include "Bot.h"
 #include "Move.h"
 #include "Board.h"
+#include "ValueTables.h"
 
 #include <limits>
 #include <vector>
@@ -136,24 +137,15 @@ int ChessBot::evaluateBoard(Board* board, tileState player) {
     score += whiteMoves.size();
     score -= blackMoves.size();
 
-    return (player == WHITE) ? score : -score;
-}
-
-int pieceSquareValue(Board::PieceIndex piece, int rank, int file) {
-    // Example simple piece-square table for pawns
-    static int pawnTable[8][8] = {
-        { 0,  0,  0,  0,  0,  0,  0,  0 },
-        { 5,  5,  5,  5,  5,  5,  5,  5 },
-        { 1,  1,  2,  3,  3,  2,  1,  1 },
-        { 0,  0,  0,  2,  2,  0,  0,  0 },
-        { 0,  0,  0, -2, -2,  0,  0,  0 },
-        { 1, -1, -2,  0,  0, -2, -1,  1 },
-        { 1,  2,  2, -2, -2,  2,  2,  1 },
-        { 0,  0,  0,  0,  0,  0,  0,  0 }
-    };
-    if (piece == Board::WHITE_PAWNS || piece == Board::BLACK_PAWNS) {
-        return pawnTable[rank][file];
+    // Piece-square tables
+    for (int i = 0; i < 12; i++) {
+        auto piece = static_cast<Board::PieceIndex>(i);
+        auto pieceIndex = board->getPiece(piece);
+        auto rankfile = binIdxToGrid(pieceIndex);
+        int rank = get<0>(rankfile);
+        int file = get<1>(rankfile);
+        score += pieceSquareValue(piece, rank, file);
     }
-    // Implement tables for other pieces similarly
-    return 0;
+
+    return (player == WHITE) ? score : -score;
 }
