@@ -74,3 +74,33 @@ TEST_F(AITest, AgainstSelf) {
     }
     ASSERT_TRUE(moveGen->isGameOver(board));
 }
+
+/**
+ * Tests that the king does not put itself in check.
+ * This is set up from a custom position.
+ */
+TEST_F(AITest, NoMoveIntoCheck) {
+    // Set up black pieces
+    board->setPieceBin(Board::BLACK_PAWNS, 0b0000000011101111000100000000000000000000000000000000000000000000);
+    board->setPieceRF(Board::BLACK_ROOKS, 7, 0);
+    board->setPieceRF(Board::BLACK_ROOKS, 7, 7);
+    board->setPieceRF(Board::BLACK_BISHOPS, 7, 2);
+    board->setPieceRF(Board::BLACK_BISHOPS, 4, 2);
+    board->setPieceRF(Board::BLACK_KING, 7, 4);
+    board->setPieceRF(Board::BLACK_KNIGHTS, 5, 2);
+    board->setPieceRF(Board::BLACK_KNIGHTS, 7, 6);
+    board->setPieceRF(Board::BLACK_QUEEN, 1, 2);
+    
+    // Set up white pieces
+    board->setPieceBin(Board::WHITE_PAWNS, 0b00000000000000000000000001000100100000010011100000000000);
+    board->setPieceBin(Board::WHITE_ROOKS, 0b00000000000000000000000000000000000000000000000010000001);
+    board->setPieceBin(Board::WHITE_KNIGHTS, 0b00000000000000000000000000000000000000000000000001000010);
+    board->setPieceBin(Board::WHITE_BISHOPS, 0b00000000000000000000000000000000000000000000000000100100);
+    board->setPieceRF(Board::WHITE_KING, 0, 4);
+
+    // White to move
+    board->applyMove(ai->findBestMove(board, WHITE).first);
+
+    // Test that white is not in check
+    ASSERT_FALSE(moveGen->isInCheck(*board, WHITE));
+}
