@@ -79,6 +79,9 @@ vector<Move> MoveGenerator::removeKingTargetingMoves(const vector<Move>& moves, 
 
 /*
 Removes any moves that would leave the king in check after the move is applied.
+
+If the king is already in check, next move needs to make the king no longer in check.
+Else if the king is not in check, it should not move to a position that would put the king in check.
 */
 std::vector<Move> MoveGenerator::removeMovesLeavingKingInCheck(
     Board* board, 
@@ -87,14 +90,10 @@ std::vector<Move> MoveGenerator::removeMovesLeavingKingInCheck(
 
     std::vector<Move> validMoves;
     for (const auto& move : moves) {
-        if (!isInCheck(*board, color)) { 
-            validMoves.push_back(move); 
-        } else {
-            Board copy = *board;
-            copy.applyMove(move);
-            if (!isInCheck(copy, color)) {
-                validMoves.push_back(move);
-            }
+        Board copy = *board;
+        copy.applyMove(move);
+        if (!isInCheck(copy, color)) {
+            validMoves.push_back(move);
         }
     }
     return validMoves;
