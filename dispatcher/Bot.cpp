@@ -73,7 +73,7 @@ int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState pl
             Board boardCopy = *board;
             boardCopy.applyMove(move);
             int eval = minimax(&boardCopy, depth - 1, alpha, beta, BLACK);
-            if (move.isCapture()) { eval += 90; }
+            if (move.isCapture()) { eval += 10; }
             maxEval = std::max(maxEval, eval);
             alpha = std::max(alpha, eval);
             if (beta <= alpha) { break; }
@@ -85,7 +85,7 @@ int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState pl
             Board boardCopy = *board;
             boardCopy.applyMove(move);
             int eval = minimax(&boardCopy, depth - 1, alpha, beta, WHITE);
-            if (move.isCapture()) { eval -= 90; }
+            if (move.isCapture()) { eval -= 10; }
             minEval = std::min(minEval, eval);
             beta = std::min(beta, eval);
             if (beta <= alpha) { break; }
