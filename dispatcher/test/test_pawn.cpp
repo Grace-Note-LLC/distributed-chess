@@ -152,3 +152,45 @@ TEST_F(PawnTest, PawnMoveGeneration_Black_Blocked_AnotherPawn_SameColor) {
     std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::BLACK_PAWNS);
     ASSERT_EQ(moves.size(), 1);
 }
+
+TEST_F(PawnTest, WhitePawnPromotion) {
+    board->setPieceRF(Board::WHITE_PAWNS, 6, 6);
+    board->prettyPrint();
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_PAWNS);
+    board->applyMove(moves.at(0));
+    board->prettyPrint();
+    ASSERT_TRUE(board->getPiece(Board::WHITE_QUEEN) > 0ULL);
+} 
+
+TEST_F(PawnTest, WhitePawnPromotion_onCapture) {
+    board->setPieceRF(Board::WHITE_PAWNS, 6, 6);
+    board->setPieceRF(Board::BLACK_PAWNS, 7, 7);
+    board->prettyPrint();
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::WHITE_PAWNS);
+    board->applyMove(moves.at(1));
+    board->prettyPrint();
+    ASSERT_TRUE(board->getPiece(Board::WHITE_QUEEN) > 0ULL);
+    ASSERT_TRUE(board->getPiece(Board::BLACK_PAWNS) == 0ULL);
+    ASSERT_TRUE(board->getPiece(Board::WHITE_PAWNS) == 0ULL);
+} 
+
+TEST_F(PawnTest, BlackPawnPromotion) {
+    board->setPieceRF(Board::BLACK_PAWNS, 1, 6);
+    board->prettyPrint();
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::BLACK_PAWNS);
+    board->applyMove(moves.at(0));
+    board->prettyPrint();
+    ASSERT_TRUE(board->getPiece(Board::BLACK_QUEEN) > 0ULL);
+}
+
+TEST_F(PawnTest, BlackPawnPromotion_onCapture) {
+    board->setPieceRF(Board::BLACK_PAWNS, 1, 6);
+    board->setPieceRF(Board::WHITE_PAWNS, 0, 7);
+    board->prettyPrint();
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::BLACK_PAWNS);
+    board->applyMove(moves.at(1));
+    board->prettyPrint();
+    ASSERT_TRUE(board->getPiece(Board::BLACK_QUEEN) > 0ULL);
+    ASSERT_TRUE(board->getPiece(Board::WHITE_PAWNS) == 0ULL);
+    ASSERT_TRUE(board->getPiece(Board::BLACK_PAWNS) == 0ULL);
+}

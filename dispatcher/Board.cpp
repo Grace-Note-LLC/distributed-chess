@@ -104,6 +104,15 @@ void Board::applyMove(Move move) {
 
     this->setPieceBin(move.getPieceType(), currPosition);
 
+    if (move.getPieceType() == WHITE_PAWNS && (newPosition & 0xFF00000000000000)) {
+        pieces[WHITE_QUEEN] |= newPosition;
+        pieces[WHITE_PAWNS] ^= newPosition;
+    }
+    if (move.getPieceType() == BLACK_PAWNS && (newPosition & 0x00000000000000FF)) {
+        pieces[BLACK_QUEEN] |= newPosition;
+        pieces[BLACK_PAWNS] ^= newPosition;
+    }
+
     // remove the piece from the board
     if (!move.isCapture()) return;
     for (auto piece : pivec) {
