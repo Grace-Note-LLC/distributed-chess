@@ -59,7 +59,7 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
             futures.push_back(std::async(std::launch::async, [&, movePair]() {
                 Board copy = *board;
                 copy.applyMove(movePair.second);
-                int score = minimax(&copy, MAX_DEPTH - 1, NEG_INF, POS_INF, (player == WHITE) ? BLACK : WHITE);
+                int score = minimax(&copy, MAX_DEPTH - 1, NEG_INF, POS_INF, player);
 
                 {
                     std::lock_guard<std::mutex> lock(mutex);
