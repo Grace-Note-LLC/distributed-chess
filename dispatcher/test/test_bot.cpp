@@ -61,13 +61,12 @@ TEST_F(AITest, AgainstSelf) {
         auto best = ai->findBestMove(board, player);
         Move bestMove = best.first;
         int score = best.second;
-
-        board->applyMove(bestMove);
         cout << endl << "\t\tITER: " << iter << endl;
         cout << "Best: " << (player == WHITE ? "WHITE" : "BLACK") << " : " << score << endl;
-        
         bestMove.print();
         cout << "\t\tTurn: " << player << endl;
+
+        board->applyMove(bestMove);        
         board->prettyPrint();
         iter++;
         player = (player == WHITE) ? BLACK : WHITE;

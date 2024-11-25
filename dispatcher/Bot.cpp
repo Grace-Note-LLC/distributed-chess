@@ -9,6 +9,7 @@
 #include <mutex>
 #include <future>
 #include <iostream>
+#include <queue>
 
 #define MAX_DEPTH 3
 #define NEG_INF -100000
@@ -20,46 +21,72 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
     int bestScore = (player == WHITE) ? NEG_INF : POS_INF;
     Move bestMove;
 
-    // Generate all possible moves for the current player
+    // Generate and prioritize moves
     vector<Move> possibleMoves = moveGen.generateAndFilterMoves(board, player);
-    // if (possibleMoves.size() == 0) {
-    //     cout << "No moves available" << endl;
-    //     return make_pair(bestMove, bestScore);
-    // }
-    // for (auto& move : possibleMoves) {
-    //     move.print();
-    // }
-    // Mutex to synchronize access to bestMove and bestScore
+    if (possibleMoves.empty()) {
+        cout << "No moves available" << endl;
+        return make_pair(bestMove, bestScore);
+    }
+    bestMove = possibleMoves[0];
+
+    // Priority queue with a custom comparator
+    auto comparator = [player](const pair<int, Move>& a, const pair<int, Move>& b) {
+        return (player == WHITE) ? (a.first < b.first) : (a.first > b.first);
+    };
+    std::priority_queue<pair<int, Move>, vector<pair<int, Move>>, decltype(comparator)> moveQueue(comparator);
+
+    for (const auto& move : possibleMoves) {
+        Board copy = *board;
+        copy.applyMove(move);
+        int score = evaluateBoard(&copy, player);
+        if (move.isCapture()) { score += (player == WHITE) ? 100 : -100; }
+        moveQueue.push(make_pair(score, move));
+    }
+
+    // Mutex for thread-safe updates
     std::mutex mutex;
 
-    // Use futures to parallelize move evaluations
-    std::vector<std::future<void>> futures;
-    for (const auto& move : possibleMoves) {
-        futures.push_back(std::async(std::launch::async, [&](Move currentMove) {
-            Board copy = *board;
-            copy.applyMove(currentMove);
+    // Concurrency limit for parallelism
+    size_t threadLimit = std::thread::hardware_concurrency();
+    vector<std::future<void>> futures;
+    size_t activeThreads = 0;
 
-            int score = minimax(&copy, MAX_DEPTH - 1, NEG_INF, POS_INF, (player == WHITE) ? BLACK : WHITE);
+    while (!moveQueue.empty() || activeThreads > 0) {
+        if (activeThreads < threadLimit && !moveQueue.empty()) {
+            auto movePair = moveQueue.top();
+            moveQueue.pop();
 
-            // Lock to update the best score and move
-            std::lock_guard<std::mutex> lock(mutex);
-            if ((player == WHITE && score >= bestScore) || 
-                (player == BLACK && score <= bestScore)) {
+            futures.push_back(std::async(std::launch::async, [&, movePair]() {
+                Board copy = *board;
+                copy.applyMove(movePair.second);
+                int score = minimax(&copy, MAX_DEPTH - 1, NEG_INF, POS_INF, (player == WHITE) ? BLACK : WHITE);
 
-                bestScore = score;
-                bestMove = currentMove;
+                {
+                    std::lock_guard<std::mutex> lock(mutex);
+                    if ((player == WHITE && score > bestScore) || (player == BLACK && score < bestScore)) {
+                        bestScore = score;
+                        bestMove = movePair.second;
+                    }
+                }
+            }));
+            activeThreads++;
+        }
+
+        // Check completed threads
+        for (auto it = futures.begin(); it != futures.end();) {
+            if (it->wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+                it->get(); // Wait for completion
+                it = futures.erase(it); // Remove completed future
+                activeThreads--;
+            } else {
+                ++it;
             }
-        }, move));
+        }
     }
 
-    // Wait for all futures to complete
-    for (auto& future : futures) {
-        future.get();
-    }
-
-    pair<Move, int> p = make_pair(bestMove, bestScore);
-    return p;
+    return make_pair(bestMove, bestScore);
 }
+
 
 int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState player) {
     auto isOver = moveGen.isCheckmate(board, player);
@@ -73,7 +100,6 @@ int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState pl
             Board boardCopy = *board;
             boardCopy.applyMove(move);
             int eval = minimax(&boardCopy, depth - 1, alpha, beta, BLACK);
-            if (move.isCapture()) { eval += 10; }
             maxEval = std::max(maxEval, eval);
             alpha = std::max(alpha, eval);
             if (beta <= alpha) { break; }
@@ -85,7 +111,6 @@ int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState pl
             Board boardCopy = *board;
             boardCopy.applyMove(move);
             int eval = minimax(&boardCopy, depth - 1, alpha, beta, WHITE);
-            if (move.isCapture()) { eval -= 10; }
             minEval = std::min(minEval, eval);
             beta = std::min(beta, eval);
             if (beta <= alpha) { break; }
@@ -103,8 +128,8 @@ int ChessBot::evaluateBoard(Board* board, tileState player) {
         return POS_INF; 
     }
 
-    auto whiteMoves = moveGen.generateAllMoves(*board, WHITE);
-    auto blackMoves = moveGen.generateAllMoves(*board, BLACK);
+    auto whiteMoves = moveGen.generateAndFilterMoves(board, WHITE);
+    auto blackMoves = moveGen.generateAndFilterMoves(board, BLACK);
     
     // Stalemate, neutral position
     if (whiteMoves.size() == 0 && blackMoves.size() == 0) {
@@ -112,23 +137,30 @@ int ChessBot::evaluateBoard(Board* board, tileState player) {
         return 0;  
     }
 
-    // Material balance
+    // Material balance, Mobility
     int score = 0;
-    score += board->getPieceCount(Board::WHITE_PAWNS) * 10;
-    score += board->getPieceCount(Board::WHITE_KNIGHTS) * 30;
-    score += board->getPieceCount(Board::WHITE_BISHOPS) * 30;
-    score += board->getPieceCount(Board::WHITE_ROOKS) * 50;
-    score += board->getPieceCount(Board::WHITE_QUEEN) * 100;
-    
-    score -= board->getPieceCount(Board::BLACK_PAWNS) * 10;
-    score -= board->getPieceCount(Board::BLACK_KNIGHTS) * 30;
-    score -= board->getPieceCount(Board::BLACK_BISHOPS) * 30;
-    score -= board->getPieceCount(Board::BLACK_ROOKS) * 50;
-    score -= board->getPieceCount(Board::BLACK_QUEEN) * 100;
-    
-    // Mobility
+    int whiteMaterial = 0;
+    int blackMaterial = 0;
+    whiteMaterial += board->getPieceCount(Board::WHITE_PAWNS) * 2;
+    whiteMaterial += board->getPieceCount(Board::WHITE_KNIGHTS) * 3;
+    whiteMaterial += board->getPieceCount(Board::WHITE_BISHOPS) * 4;
+    whiteMaterial += board->getPieceCount(Board::WHITE_ROOKS) * 6;
+    whiteMaterial += board->getPieceCount(Board::WHITE_QUEEN) * 8;
     score += whiteMoves.size();
-    score -= blackMoves.size();
+
+    blackMaterial -= board->getPieceCount(Board::BLACK_PAWNS) * 2;
+    blackMaterial -= board->getPieceCount(Board::BLACK_KNIGHTS) * 3;
+    blackMaterial -= board->getPieceCount(Board::BLACK_BISHOPS) * 4;
+    blackMaterial -= board->getPieceCount(Board::BLACK_ROOKS) * 6;
+    blackMaterial -= board->getPieceCount(Board::BLACK_QUEEN) * 8;
+    blackMaterial -= blackMoves.size();
+
+    auto mobilityRatio = make_pair(10, 6);
+    if (player == WHITE) {
+        score += mobilityRatio.first * whiteMaterial + mobilityRatio.second * blackMaterial;
+    } else {
+        score += mobilityRatio.first * blackMaterial + mobilityRatio.second * whiteMaterial;
+    }
 
     // Piece-square tables
     for (int i = 0; i < 12; i++) {
@@ -139,6 +171,5 @@ int ChessBot::evaluateBoard(Board* board, tileState player) {
         int file = get<1>(rankfile);
         score += pieceSquareValue(piece, rank, file);
     }
-
-    return (player == WHITE) ? score : -score;
+    return score;
 }
