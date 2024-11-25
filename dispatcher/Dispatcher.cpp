@@ -4,10 +4,28 @@
 #include <vector>
 #include <sstream>
 #include <asio.hpp>
+#include <nlohmann/json.hpp>
 #include "Board.h"
 #include "Bot.h"
 
 using asio::ip::tcp;
+using json = nlohmann::json;
+
+void recreateBoard(Board* board, json boardState) {
+    board->setPieceBin(Board::WHITE_PAWNS,   boardState.at("WHITE_PAWNS"));
+    board->setPieceBin(Board::BLACK_PAWNS,   boardState.at("BLACK_PAWNS"));
+    board->setPieceBin(Board::WHITE_ROOKS,   boardState.at("WHITE_ROOKS"));
+    board->setPieceBin(Board::BLACK_ROOKS,   boardState.at("BLACK_ROOKS"));
+    board->setPieceBin(Board::WHITE_KNIGHTS, boardState.at("WHITE_KNIGHTS"));
+    board->setPieceBin(Board::BLACK_KNIGHTS, boardState.at("BLACK_KNIGHTS"));
+    board->setPieceBin(Board::WHITE_BISHOPS, boardState.at("WHITE_BISHOPS"));
+    board->setPieceBin(Board::BLACK_BISHOPS, boardState.at("BLACK_BISHOPS"));
+    board->setPieceBin(Board::WHITE_QUEEN,   boardState.at("WHITE_QUEEN"));
+    board->setPieceBin(Board::BLACK_QUEEN,   boardState.at("BLACK_QUEEN"));
+    board->setPieceBin(Board::WHITE_KING,    boardState.at("WHITE_KING"));
+    board->setPieceBin(Board::BLACK_KING,    boardState.at("BLACK_KING"));
+}
+
 
 void handleClient(tcp::socket socket, ChessBot& bot) {
     try {
@@ -17,27 +35,25 @@ void handleClient(tcp::socket socket, ChessBot& bot) {
         std::string request;
         std::getline(input, request);
 
-        // Parse request (assuming JSON input)
-        std::istringstream requestStream(request);
-        std::string playerStr;
-        Board board;
+        // Parse the JSON input
+        json requestJson = json::parse(request);
+        Board* board = new Board();
         tileState player;
 
-        // Parse player and board state (placeholder logic, replace with actual parsing)
-        if (requestStream >> playerStr) {
-            player = (playerStr == "WHITE") ? WHITE : BLACK;
-        }
-        board.fillStandard(); // Replace with parsed board state
+        auto boardState = requestJson.at("boardState");
+        recreateBoard(board, boardState);
+        board->prettyPrint();
+        std::string playerStr = requestJson.at("player");
+        player = (playerStr == "WHITE") ? WHITE : BLACK;
 
-        // Find the best move
-        auto result = bot.findBestMove(&board, player);
+        auto result = bot.findBestMove(board, player);
 
-        // Send the result back as JSON
-        std::ostringstream responseStream;
-        responseStream << "{ \"bestMove\": \"" << result.first.getPieceType() << "\", "
-                       << "\"score\": " << result.second << " }";
-        std::string response = responseStream.str() + "\n";
+        json responseJson = {
+            {"bestMove", result.first.getPieceType()},
+            {"score", result.second}
+        };
 
+        std::string response = responseJson.dump() + "\n";
         asio::write(socket, asio::buffer(response));
     } catch (std::exception& e) {
         std::cerr << "Error handling client: " << e.what() << std::endl;
