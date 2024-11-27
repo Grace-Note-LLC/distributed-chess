@@ -3,6 +3,7 @@
 
 #include <tuple>
 #include <cstdint>
+#include <iostream>
 #pragma once
 
 enum tileState {
@@ -19,7 +20,9 @@ zeros in a 64-bit integer. This is used to determine the
 index of the piece in the board.
 */
 inline std::tuple<int, int> binIdxToGrid(uint64_t bin) {
-    int index = __builtin_ctzll(bin); 
+    if (bin == 0) throw std::invalid_argument("This piece does not exist on the board; cannot convert to grid index");
+    
+    int index = __builtin_ctzll(bin);
     return std::make_tuple(index >> 3, index % 8ULL);
 }
 

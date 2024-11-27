@@ -7,11 +7,14 @@ Methods for piece movement.
 #include <cstdint>
 #include <iostream>
 #include <vector>
+#include <mutex>
 
 #include "Board.h"  // Include Board for accessing board state
 #include "Utils.h"  
 
 using namespace std;
+
+extern mutex printMutex;
 
 class Board;  // Forward declaration of Board class
 
@@ -25,6 +28,13 @@ public:
     bool isCapture()                 const { return capture; }
     uint64_t getNewPosition()        const { return newPosition; }
     uint64_t getOldPosition()        const { return oldPosition; }
+    string moveToString() const {
+        lock_guard<mutex> lock(printMutex);
+        tuple<int, int> fromPos = binIdxToGrid(this->oldPosition);
+        tuple<int, int> toPos = binIdxToGrid(this->newPosition);
+
+        return "(" + to_string(get<0>(fromPos)) + ", " + to_string(get<1>(fromPos)) + ") -> (" + to_string(get<0>(toPos)) + ", " + to_string(get<1>(toPos)) + ")";
+    }
     void print() {
         auto move = binIdxToGrid(newPosition);
         cout << "Piece type: " << pieceType << endl;

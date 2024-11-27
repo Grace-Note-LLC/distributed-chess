@@ -11,7 +11,7 @@
 #include <iostream>
 #include <queue>
 
-#define MAX_DEPTH 1
+#define MAX_DEPTH 3
 #define NEG_INF -100000
 #define POS_INF 100000
 
@@ -35,29 +35,30 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
         cout << "No moves available" << endl;
         return make_pair(bestMove, bestScore);
     }
-    moveGen.printMoves(*board, possibleMoves, player);
     bestMove = possibleMoves[0];
 
     // Priority queue with a custom comparator
     auto comparator = [player](const pair<int, Move>& a, const pair<int, Move>& b) {
         return (player == WHITE) ? (a.first < b.first) : (a.first > b.first);
     };
-    std::priority_queue<pair<int, Move>, vector<pair<int, Move>>, decltype(comparator)> moveQueue(comparator);
+    priority_queue<pair<int, Move>, vector<pair<int, Move>>, decltype(comparator)> moveQueue(comparator);
 
     for (const auto& move : possibleMoves) {
         Board copy = *board;
         copy.applyMove(move);
         int score = evaluateBoard(&copy, player);
-        if (move.isCapture()) { score += (player == WHITE) ? 100 : -100; }
+        if (move.isCapture()) { 
+            score += (player == WHITE) ? 100 : -100;
+        }
         moveQueue.push(make_pair(score, move));
     }
 
     // Mutex for thread-safe updates
-    std::mutex mutex;
+    mutex scoreMutex;
 
     // Concurrency limit for parallelism
-    size_t threadLimit = std::thread::hardware_concurrency();
-    vector<std::future<void>> futures;
+    size_t threadLimit = thread::hardware_concurrency();
+    vector<future<void>> futures;
     size_t activeThreads = 0;
 
     while (!moveQueue.empty() || activeThreads > 0) {
@@ -65,13 +66,13 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
             auto movePair = moveQueue.top();
             moveQueue.pop();
 
-            futures.push_back(std::async(std::launch::async, [&, movePair]() {
+            futures.push_back(async(launch::async, [&, movePair]() {
                 Board copy = *board;
                 copy.applyMove(movePair.second);
                 int score = minimax(&copy, MAX_DEPTH - 1, NEG_INF, POS_INF, player);
 
                 {
-                    std::lock_guard<std::mutex> lock(mutex);
+                    lock_guard<mutex> lock(scoreMutex);
                     if ((player == WHITE && score > bestScore) || (player == BLACK && score < bestScore)) {
                         bestScore = score;
                         bestMove = movePair.second;
@@ -83,7 +84,7 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
 
         // Check completed threads
         for (auto it = futures.begin(); it != futures.end();) {
-            if (it->wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+            if (it->wait_for(chrono::milliseconds(0)) == future_status::ready) {
                 it->get(); // Wait for completion
                 it = futures.erase(it); // Remove completed future
                 activeThreads--;
@@ -101,7 +102,7 @@ int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState pl
     auto isOver = moveGen.isCheckmate(board, player);
     if (depth == 0 || isOver) { return evaluateBoard(board, player); }
 
-    std::vector<Move> possibleMoves = moveGen.generateAllMoves(*board, player);
+    vector<Move> possibleMoves = moveGen.generateAllMoves(*board, player);
 
     if (player == WHITE) {
         int maxEval = NEG_INF;
@@ -109,8 +110,8 @@ int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState pl
             Board boardCopy = *board;
             boardCopy.applyMove(move);
             int eval = minimax(&boardCopy, depth - 1, alpha, beta, BLACK);
-            maxEval = std::max(maxEval, eval);
-            alpha = std::max(alpha, eval);
+            maxEval = max(maxEval, eval);
+            alpha = max(alpha, eval);
             if (beta <= alpha) { break; }
         }
         return maxEval;
@@ -120,8 +121,8 @@ int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState pl
             Board boardCopy = *board;
             boardCopy.applyMove(move);
             int eval = minimax(&boardCopy, depth - 1, alpha, beta, WHITE);
-            minEval = std::min(minEval, eval);
-            beta = std::min(beta, eval);
+            minEval = min(minEval, eval);
+            beta = min(beta, eval);
             if (beta <= alpha) { break; }
         }
         return minEval;
@@ -173,12 +174,14 @@ int ChessBot::evaluateBoard(Board* board, tileState player) {
 
     // Piece-square tables
     for (int i = 0; i < 12; i++) {
-        auto piece = static_cast<Board::PieceIndex>(i);
-        auto pieceIndex = board->getPiece(piece);
-        auto rankfile = binIdxToGrid(pieceIndex);
+        Board::PieceIndex piece = static_cast<Board::PieceIndex>(i);
+        uint64_t pieceIndex = board->getPiece(piece);
+        if (pieceIndex == 0) continue; // Do not count score if no pieces exist
+        tuple<int, int> rankfile = binIdxToGrid(pieceIndex);
         int rank = get<0>(rankfile);
         int file = get<1>(rankfile);
         score += pieceSquareValue(piece, rank, file);
     }
+
     return score;
 }

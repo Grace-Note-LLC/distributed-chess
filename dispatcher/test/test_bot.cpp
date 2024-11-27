@@ -162,4 +162,8 @@ TEST_F(AITest, TakeHangingQueen) {
 
     board->prettyPrint();
     cout << "Best move: (" << get<0>(fromPos) << ", " << get<1>(fromPos) << ") -> (" << get<0>(toPos) << ", " << get<1>(toPos) << ") with score of " << bestMoveScore << endl; 
+
+    // In this case, (4, 7) -> (4, 4) should be the best move as it takes the hanging queen.
+    ASSERT_EQ(fromPos, make_tuple(4, 7));
+    ASSERT_EQ(toPos, make_tuple(4, 4));
 }

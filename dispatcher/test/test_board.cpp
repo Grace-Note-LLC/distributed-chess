@@ -248,3 +248,19 @@ TEST_F(BoardTest, Check_EscapeOnCapture) {
     ASSERT_FALSE(moveGen->isCheckmate(board, WHITE));
     ASSERT_TRUE(moveGen->isInCheck(*board, WHITE));
 }
+
+/**
+ * Test that binIdxToGrid function properly returns correct value.
+ * Assumes gridToBinIdx is working properly.
+ */
+TEST_F(BoardTest, TestBinIdxToGrid) {
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            tuple<int, int> expectedRankFile = make_tuple(rank, file);
+            uint64_t binIdx = gridToBinIdx(expectedRankFile);
+            tuple<int, int> actualRankFile = binIdxToGrid(binIdx);
+            ASSERT_EQ(get<0>(expectedRankFile), get<0>(actualRankFile));
+            ASSERT_EQ(get<1>(expectedRankFile), get<1>(actualRankFile));
+        }
+    }
+}
