@@ -122,8 +122,8 @@ TEST_F(BoardTest, KingChecked_Black_Pawn) {
   6| p p p p p p p p 
   5|                 
   4|                 
-  3| P               
-  2|                 
+  3|                 
+  2| P               
   1|   P P P P P P P 
   0| R N B Q K B N R 
 
@@ -132,7 +132,7 @@ TEST_F(BoardTest, ApplyMove_noCapture) {
     board->fillStandard();
     std::vector<Move> moves = moveGen->generateAllMoves(*board, WHITE);
     board->applyMove(moves[0]);
-    ASSERT_EQ(board->getPiece(Board::WHITE_PAWNS), 0x000000000100FE00);
+    ASSERT_EQ(board->getPiece(Board::WHITE_PAWNS), 0x000000000001FE00);
 }
 
 /*

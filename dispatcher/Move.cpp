@@ -152,17 +152,28 @@ std::vector<Move> MoveGenerator::generatePawnMoves(Board* board, Board::PieceInd
         int rank = std::get<0>(rankfile);
         int file = std::get<1>(rankfile);
         auto oldPosition = gridToBinIdx(rank, file);
-        // Check for pawn 2x move
-        tileState front = getOccupant(board, pieceType, gridToBinIdx(rank + singleOffset, file));
-        if (front == EMPTY) {
-            if (rank == startRank)
-                addMoveIfValid(moves, board, pieceType, oldPosition, rank + doubleOffset, file);
+
+        // Check if square immediately in front is occupied
+        tileState tileInPath1Ahead = getOccupant(board, pieceType, gridToBinIdx(rank + singleOffset, file));
+        if (tileInPath1Ahead == EMPTY) {
             addMoveIfValid(moves, board, pieceType, oldPosition, rank + singleOffset, file);
         }
 
+        // If on starting square, check if there are no pieces in the path 2 squares ahead
+        if (rank == startRank) {
+            tileState tileInPath2Ahead = getOccupant(board, pieceType, gridToBinIdx(rank + doubleOffset, file));
+
+            if (tileInPath1Ahead == EMPTY && tileInPath2Ahead == EMPTY) {
+                addMoveIfValid(moves, board, pieceType, oldPosition, rank + doubleOffset, file);
+            }
+        }
+
         // Check for diagonal captures
-        for (const auto& os : captureOffsets)
+        for (const auto& os : captureOffsets) {
             generatePawnDiagonalCaptures(moves, board, pieceType, oldPosition, rank + os.first, file + os.second);
+        }
+        
+        // Remove piece from reference bitboard; equivalent to marking as done
         piece &= piece - 1;
     }
     return moves;

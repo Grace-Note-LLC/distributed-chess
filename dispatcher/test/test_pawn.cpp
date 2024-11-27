@@ -109,6 +109,26 @@ TEST_F(PawnTest, PawnMoveGeneration_Black_Double) {
     }
 }
 
+/**
+ * Tests that a pawn cannot move two squares from its starting square if it is occupied by another piece.
+ */
+TEST_F(PawnTest, PawnMoveGeneration_Black_NoDoubleMoveIfOccupied) {
+    board->setPieceRF(Board::BLACK_PAWNS, 6, 4);
+    board->setPieceRF(Board::WHITE_BISHOPS, 4, 4);
+    
+    std::vector<Move> moves = moveGen->generatePieceMoves(board, Board::BLACK_PAWNS);
+    ASSERT_EQ(moves.size(), 1);
+
+    std::vector<std::tuple<int, int>> expectedMoves = { {5, 4} };
+    ASSERT_EQ(moves.size(), expectedMoves.size());
+    for (const auto& move : moves) {
+        auto rankfile = binIdxToGrid(move.getNewPosition());
+        ASSERT_TRUE(
+            std::find(expectedMoves.begin(), expectedMoves.end(), rankfile) != expectedMoves.end()
+        );
+    }
+}
+
 TEST_F(PawnTest, PawnMoveGeneration_Black_Capture) {
     board->setPieceRF(Board::BLACK_PAWNS, 4, 4);
     board->setPieceRF(Board::WHITE_PAWNS, 3, 5);
