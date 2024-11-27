@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <tuple>
-#include <bitset>
 
 #include "../Board.h"
 #include "../Move.h"

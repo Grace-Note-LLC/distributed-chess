@@ -46,10 +46,7 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
     for (const auto& move : possibleMoves) {
         Board copy = *board;
         copy.applyMove(move);
-        int score = evaluateBoard(&copy, player);
-        if (move.isCapture()) { 
-            score += (player == WHITE) ? 100 : -100;
-        }
+        int score = evaluateBoard(&copy, player, move.isCapture());
         moveQueue.push(make_pair(score, move));
     }
 
@@ -69,7 +66,7 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
             futures.push_back(async(launch::async, [&, movePair]() {
                 Board copy = *board;
                 copy.applyMove(movePair.second);
-                int score = minimax(&copy, MAX_DEPTH - 1, NEG_INF, POS_INF, player);
+                int score = minimax(&copy, MAX_DEPTH - 1, NEG_INF, POS_INF, player, movePair.second);
 
                 {
                     lock_guard<mutex> lock(scoreMutex);
@@ -98,18 +95,18 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
 }
 
 
-int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState player) {
+int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState player, Move m) {
     auto isOver = moveGen.isCheckmate(board, player);
-    if (depth == 0 || isOver) { return evaluateBoard(board, player); }
+    if (depth == 0 || isOver) { return evaluateBoard(board, player, m.isCapture()); }
 
     vector<Move> possibleMoves = moveGen.generateAllMoves(*board, player);
 
     if (player == WHITE) {
         int maxEval = NEG_INF;
-        for (const auto& move : possibleMoves) {
+        for (const Move& move : possibleMoves) {
             Board boardCopy = *board;
             boardCopy.applyMove(move);
-            int eval = minimax(&boardCopy, depth - 1, alpha, beta, BLACK);
+            int eval = minimax(&boardCopy, depth - 1, alpha, beta, BLACK, move);
             maxEval = max(maxEval, eval);
             alpha = max(alpha, eval);
             if (beta <= alpha) { break; }
@@ -117,10 +114,10 @@ int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState pl
         return maxEval;
     } else {
         int minEval = POS_INF;
-        for (const auto& move : possibleMoves) {
+        for (const Move& move : possibleMoves) {
             Board boardCopy = *board;
             boardCopy.applyMove(move);
-            int eval = minimax(&boardCopy, depth - 1, alpha, beta, WHITE);
+            int eval = minimax(&boardCopy, depth - 1, alpha, beta, WHITE, move);
             minEval = min(minEval, eval);
             beta = min(beta, eval);
             if (beta <= alpha) { break; }
@@ -129,7 +126,7 @@ int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState pl
     }
 }
 
-int ChessBot::evaluateBoard(Board* board, tileState player) {
+int ChessBot::evaluateBoard(Board* board, tileState player, bool isCapture) {
     // Check for checkmate or stalemate
     if (moveGen.isCheckmate(board, WHITE)) { 
         return NEG_INF; 
@@ -170,6 +167,11 @@ int ChessBot::evaluateBoard(Board* board, tileState player) {
         score += mobilityRatio.first * whiteMaterial + mobilityRatio.second * blackMaterial;
     } else {
         score += mobilityRatio.first * blackMaterial + mobilityRatio.second * whiteMaterial;
+    }
+
+    // Favor moves that capture pieces
+    if (isCapture) {
+        score += (player == WHITE) ? 100 : -100; 
     }
 
     // Piece-square tables

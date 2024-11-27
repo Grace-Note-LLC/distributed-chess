@@ -157,13 +157,42 @@ TEST_F(AITest, TakeHangingQueen) {
     Move bestMove = aiResult.first;
     int bestMoveScore = aiResult.second;
 
+    board->prettyPrint();
+
     tuple<int, int> fromPos = binIdxToGrid(bestMove.getOldPosition());
     tuple<int, int> toPos = binIdxToGrid(bestMove.getNewPosition());
 
-    board->prettyPrint();
     cout << "Best move: (" << get<0>(fromPos) << ", " << get<1>(fromPos) << ") -> (" << get<0>(toPos) << ", " << get<1>(toPos) << ") with score of " << bestMoveScore << endl; 
 
     // In this case, (4, 7) -> (4, 4) should be the best move as it takes the hanging queen.
     ASSERT_EQ(fromPos, make_tuple(4, 7));
     ASSERT_EQ(toPos, make_tuple(4, 4));
+}
+
+/**
+ * Custom position where white leaves knight hanging, black to move (should take the hanging knight).
+ */
+TEST_F(AITest, TakeHangingKnight) {
+    board->fillStandard();
+
+    board->removePieceRF(Board::BLACK_PAWNS, 6, 4);
+    board->setPieceRF(Board::BLACK_PAWNS, 5, 4);
+    board->removePieceRF(Board::BLACK_KNIGHTS, 7, 1);
+    board->setPieceRF(Board::BLACK_KNIGHTS, 3, 3);
+
+    board->removePieceRF(Board::WHITE_KNIGHTS, 0, 6);
+    board->removePieceRF(Board::WHITE_KNIGHTS, 0, 1);
+    board->setPieceRF(Board::WHITE_KNIGHTS, 4, 1);
+
+    board->prettyPrint();
+
+    Move best = ai->findBestMove(board, BLACK).first;
+
+    cout << "Best Move: " << best.moveToString() << endl;
+    tuple<int, int> fromPos = binIdxToGrid(best.getOldPosition());
+    tuple<int, int> toPos = binIdxToGrid(best.getNewPosition());
+
+    // In this case, (3, 3) -> (4, 1) should be the best move as it takes the hanging knight.
+    ASSERT_EQ(fromPos, make_tuple(3, 3));
+    ASSERT_EQ(toPos, make_tuple(4, 1));
 }

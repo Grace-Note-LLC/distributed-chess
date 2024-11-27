@@ -74,6 +74,10 @@ public:
         pieces[index] |= 1ULL << (rank * 8 + file); 
     }
 
+    void removePieceRF(PieceIndex index, int rank, int file) {
+        pieces[index] &= ~(1ULL << (rank * 8 + file));
+    }
+
     void applyMove(Move move);
 
     bool boardEquals(Board* other) {

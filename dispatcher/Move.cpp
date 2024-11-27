@@ -1,5 +1,4 @@
 #include <tuple>
-#include <bitset>
 
 #include "Move.h"
 #include "Board.h"
@@ -304,6 +303,7 @@ std::vector<Move> MoveGenerator::generateQueenMoves(Board* board, Board::PieceIn
 std::vector<Move> MoveGenerator::generateKingMoves(Board* board, Board::PieceIndex pieceType) {
     std::vector<Move> moves;
     uint64_t piece = board->getPiece(pieceType);
+    if (piece == 0) return moves; // King is taken somehow; return no moves
     auto rankfile = binIdxToGrid(piece);
     int rank = std::get<0>(rankfile);
     int file = std::get<1>(rankfile);
