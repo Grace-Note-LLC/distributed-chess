@@ -196,3 +196,33 @@ TEST_F(AITest, TakeHangingKnight) {
     ASSERT_EQ(fromPos, make_tuple(3, 3));
     ASSERT_EQ(toPos, make_tuple(4, 1));
 }
+
+/**
+ * Sets up custom position where white has the option to take a pawn but should not as it would leave the knight hanging, 
+ *  i.e. black would take it on the next move.
+ * Tests that the minimax algorithm is working for a depth of 2.
+ */
+TEST_F(AITest, DoNotHangKnight) {
+    board->fillStandard();
+    
+    board->removePieceRF(Board::BLACK_KNIGHTS, 7, 1);
+    board->setPieceRF(Board::BLACK_KNIGHTS, 5, 2);
+    board->removePieceRF(Board::BLACK_PAWNS, 6, 4);
+    board->setPieceRF(Board::BLACK_PAWNS, 4, 4);
+
+    board->setPieceBin(Board::WHITE_KNIGHTS, 0b0000000000000000000000000000000000000000001001000000000000000000);
+
+    board->prettyPrint();
+
+    Move best = ai->findBestMove(board, WHITE).first;
+
+    cout << "Best Move: " << best.moveToString() << endl;
+
+    tuple<int, int> fromPos = binIdxToGrid(best.getOldPosition());
+    tuple<int, int> toPos = binIdxToGrid(best.getNewPosition());
+
+    // Assert that the best move is NOT to take the pawn
+    if (fromPos == make_tuple(2, 5)) {
+        ASSERT_NE(toPos, make_tuple(4, 4));
+    }
+}
