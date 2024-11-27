@@ -8,10 +8,14 @@
 #include <iostream>
 #include <algorithm>
 
+#include <mutex>
+
 using namespace std;
 
 const int WHITE_PAWN_DOUBLE_RANK = 1;
 const int BLACK_PAWN_DOUBLE_RANK = 6;
+
+mutex printMutex;
 
 Move::Move(Board::PieceIndex pieceType, uint64_t newPosition, uint64_t oldPosition, bool isCapture) {
     
@@ -44,6 +48,22 @@ vector<Move> MoveGenerator::generateAndFilterMoves(Board* board, tileState playe
         return a.isCapture() && !b.isCapture();
     });
     return possibleMoves;
+}
+
+void MoveGenerator::printMoves(Board board, vector<Move> moves, tileState player) {
+    lock_guard<mutex> lock(printMutex);
+    cout << "CURRENT BOARD: " << endl;
+    board.prettyPrint();
+    cout << "Moves for " << (player ? "BLACK" : "WHITE") << " on the above board: " << endl;
+    cout << "-----------" << endl;
+    for (Move move : moves) {
+        tuple<int, int> fromPos = binIdxToGrid(move.getOldPosition());
+        tuple<int, int> toPos = binIdxToGrid(move.getNewPosition());
+
+        cout << "\t(" << get<0>(fromPos) << ", " << get<1>(fromPos) << ") -> (" << get<0>(toPos) << ", " << get<1>(toPos) << ")" << endl; 
+    }
+
+    cout << "-----------" << endl;
 }
 
 std::vector<Move> MoveGenerator::generatePieceMoves(Board* board, Board::PieceIndex pieceType){

@@ -57,6 +57,7 @@ public:
     std::vector<Move> removeKingTargetingMoves(const std::vector<Move>& moves, uint64_t opponentKingPosition);
     std::vector<Move> removeMovesLeavingKingInCheck(Board* board, const std::vector<Move>& moves, tileState color);
 
+    void printMoves(Board board, std::vector<Move>, tileState player);
 
     tileState getOccupant(Board* board, Board::PieceIndex, uint64_t proposedMove);
 

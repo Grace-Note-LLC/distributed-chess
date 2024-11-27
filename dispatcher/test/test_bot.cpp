@@ -133,3 +133,33 @@ TEST_F(AITest, NoSegFault) {
 
     // Test that game is still running or something, idk
 }
+
+/**
+ * Sets up position where black leaves queen hanging so best move should be for white to take.
+ */
+TEST_F(AITest, TakeHangingQueen) {
+    board->setPieceBin(Board::BLACK_PAWNS, 0b0000000011110100000001010000100000000000000000000000000000000000);
+    board->setPieceBin(Board::BLACK_ROOKS, 0b1000000100000000000000000000000000000000000000000000000000000000);
+    board->setPieceBin(Board::BLACK_BISHOPS, 0b0010010000000000000000000000000000000000000000000000000000000000);
+    board->setPieceRF(Board::BLACK_KING, 7, 4);
+    board->setPieceRF(Board::BLACK_KNIGHTS, 7, 6);
+    board->setPieceRF(Board::BLACK_QUEEN, 4, 4);
+
+    board->setPieceBin(Board::WHITE_PAWNS, 0b0000000000000000000000000000000000000000000100001110111100000000);
+    board->setPieceBin(Board::WHITE_ROOKS, 0b0000000000000000000000000000000000000000000000000000000010000001);
+    board->setPieceRF(Board::WHITE_KING, 0, 4);
+    board->setPieceRF(Board::WHITE_BISHOPS, 0, 2);
+    board->setPieceRF(Board::WHITE_KNIGHTS, 0, 1);
+    board->setPieceRF(Board::WHITE_QUEEN, 4, 7);
+
+    pair<Move, int> aiResult = ai->findBestMove(board, WHITE);
+
+    Move bestMove = aiResult.first;
+    int bestMoveScore = aiResult.second;
+
+    tuple<int, int> fromPos = binIdxToGrid(bestMove.getOldPosition());
+    tuple<int, int> toPos = binIdxToGrid(bestMove.getNewPosition());
+
+    board->prettyPrint();
+    cout << "Best move: (" << get<0>(fromPos) << ", " << get<1>(fromPos) << ") -> (" << get<0>(toPos) << ", " << get<1>(toPos) << ") with score of " << bestMoveScore << endl; 
+}

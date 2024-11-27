@@ -11,12 +11,20 @@
 #include <iostream>
 #include <queue>
 
-#define MAX_DEPTH 3
+#define MAX_DEPTH 1
 #define NEG_INF -100000
 #define POS_INF 100000
 
 using namespace std;
 
+/**
+ * Finds the best move for the current player's turn using the minimax algorithm.
+ * 
+ * @param board: The current board state.
+ * @param player: The player whose turn it is.
+ * 
+ * Returns: A pair containing (1) the calculated best move and (2) the evaluated score of the best move.
+ */
 pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
     int bestScore = (player == WHITE) ? NEG_INF : POS_INF;
     Move bestMove;
@@ -27,6 +35,7 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
         cout << "No moves available" << endl;
         return make_pair(bestMove, bestScore);
     }
+    moveGen.printMoves(*board, possibleMoves, player);
     bestMove = possibleMoves[0];
 
     // Priority queue with a custom comparator
@@ -153,7 +162,7 @@ int ChessBot::evaluateBoard(Board* board, tileState player) {
     blackMaterial -= board->getPieceCount(Board::BLACK_BISHOPS) * 4;
     blackMaterial -= board->getPieceCount(Board::BLACK_ROOKS) * 6;
     blackMaterial -= board->getPieceCount(Board::BLACK_QUEEN) * 8;
-    blackMaterial -= blackMoves.size();
+    score -= blackMoves.size();
 
     auto mobilityRatio = make_pair(10, 6);
     if (player == WHITE) {
