@@ -13,3 +13,6 @@ server/static/js/*
 .idea/
 .vscode/
 *.swp
+
+# Build output
+build/

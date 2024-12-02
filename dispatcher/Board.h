@@ -3,13 +3,17 @@
 
 #include <cstdint>
 
+#include "Utils.h" 
+
+#include <string>
+
 /*
 Bit implementation of a chess board. Each piece is represented by a 64-bit integer, 
 unfolded to an 8x8 grid. The MSB is the bottom left corner of the board (A1), and 
 the LSB is the top right (H8). The board is represented as follows: 
 
 Given a uint64_t,
-    A1                                                            H8
+    H7                                                            A0
         ____    ____    ____    ____    ____    ____    ____    ____    
     ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
 
@@ -17,20 +21,22 @@ The board is represented as follows:
 
         A B C D E F G H
         ---------------
-    8\  4 5 6 7 8 9 + /
-    7\  w x y z 0 1 2 3
-    6\  o p q r s t u v
-    5\  g h i j k l m n
-    4\  Y Z a b c d e f
-    3\  Q R S T U V W X
-    2\  I J K L M N O P
-    1\  A B C D E F G H
+    7\  H G F E D C B A
+    6\  P O N M L K J I
+    5\  X W V U T S R Q
+    4\  f e d c b a Z Y
+    3\  n m l k j i h g
+    2\  v u t s r q p o
+    1\  3 2 1 0 z y x w
+    0\  / + 9 8 7 6 5 4
 
-For example, we can represent a black pawn on as 0x0000000000000FF0
+For example, we can represent a black pawn on as 0x00FF000000000000
 in which the row (or rank) 2 is filled with 1s, indicating the presence of
 a black pawn. The rest of the board is empty.
 */
 #include <vector>
+
+class Move; 
 
 class Board {
 public:
@@ -48,24 +54,44 @@ public:
         WHITE_KING,
         BLACK_KING
     };
-    
 
     Board();  // Constructor declaration
     void fillStandard();
+    void fillEmpty() { std::fill(std::begin(pieces), std::end(pieces), 0); }
 
-    void prettyPrint(Board board);
+    void prettyPrint();
 
-    std::vector<uint64_t>* getPieces() { return &pieces; }
+    uint64_t* getPieces() { return pieces; }
 
     uint64_t& getPiece(PieceIndex index) { return pieces[index]; }
-    std::vector<PieceIndex> getPieceIndices() { return pivec; }
-    char pieceAsASCII(PieceIndex index);
+    const PieceIndex* getPieceIndices() { return pivec; }
+    std::string pieceAsASCII(PieceIndex index);
+    int getPieceCount(PieceIndex index) { return __builtin_popcountll(pieces[index]); }
 
-    // bool isValidMove(PieceIndex index, );
+    void setPieceBin(PieceIndex index, uint64_t piece) { pieces[index] = piece; }
+    
+    void setPieceRF(PieceIndex index, int rank, int file) { 
+        pieces[index] |= 1ULL << (rank * 8 + file); 
+    }
+
+    void removePieceRF(PieceIndex index, int rank, int file) {
+        pieces[index] &= ~(1ULL << (rank * 8 + file));
+    }
+
+    void applyMove(Move move);
+
+    bool boardEquals(Board* other) {
+        for (int i = 0; i < 12; i++) {
+            if (pieces[i] != other->getPiece(pivec[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 private:
-    std::vector<uint64_t> pieces = std::vector<uint64_t>(12, 0);
-    std::vector<PieceIndex> pivec = {
+    uint64_t pieces[12] = {};
+    const PieceIndex pivec[12] = {
         WHITE_PAWNS, BLACK_PAWNS, WHITE_ROOKS, BLACK_ROOKS, WHITE_KNIGHTS, BLACK_KNIGHTS, WHITE_BISHOPS, BLACK_BISHOPS, WHITE_QUEEN, BLACK_QUEEN, WHITE_KING, BLACK_KING
     };
 };

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Board.h"
+#include "Move.h"
 
 int main() {
     
@@ -10,7 +11,7 @@ int main() {
     // function to expand all possible moves
     Board board;
     board.fillStandard();
-    board.prettyPrint(board);
+    board.prettyPrint();
     
     return 0;
 }
