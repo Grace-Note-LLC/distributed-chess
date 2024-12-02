@@ -75,6 +75,28 @@ const Board: React.FC = () => {
                 activePiece.style.zIndex = "1";
                 activePiece.style.pointerEvents = "auto";
             }
+            // prep board state to be sent to the backend
+            const boardState = pieces.map((piece) => ({
+                image: piece.image,
+                x: piece.x,
+                y: piece.y,
+            }));
+
+            // Make the API call to the Go backend on port 8080
+            fetch("http://localhost:8080/api/board-state", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(boardState),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log("Board state sent successfully:", data);
+                })
+                .catch((error) => {
+                    console.error("Error sending board state:", error);
+                });
 
             // reset state
             setActivePiece(null);
@@ -86,9 +108,9 @@ const Board: React.FC = () => {
     const renderPieces = () => {
         const tileSize = boardRef.current ? boardRef.current.clientWidth / 8 : 100;
 
-        return pieces.map((piece) => (
+        return pieces.map((piece, index) => (
             <div
-                key={piece.image}
+                key={`${piece.image}-${index}`} // Combine image path with index to create a unique key
                 className="chess-piece"
                 style={{
                     backgroundImage: `url(${piece.image})`,
@@ -103,6 +125,7 @@ const Board: React.FC = () => {
             ></div>
         ));
     };
+
 
     return (
         <div
