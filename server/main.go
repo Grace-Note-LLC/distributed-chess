@@ -21,18 +21,18 @@ func main() {
 }
 
 func registerRoutes() {
-    fs := http.FileServer(http.Dir("../frontend/static"))
+    fs := http.FileServer(http.Dir("../frontend/dist"))
     http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	// index page
-	http.HandleFunc("/", homePage)
+    // index page
+    http.HandleFunc("/", homePage)
 
-	// sample api call 
-	http.HandleFunc("/api/hello", handlers.HelloAPI)
+    // sample API call
+    http.HandleFunc("/api/hello", handlers.HelloAPI)
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
-    tmpl, err := template.ParseFiles(filepath.Join("../frontend/templates", "index.html"))
+    tmpl, err := template.ParseFiles(filepath.Join("../frontend/dist", "index.html"))
     if err != nil {
         http.Error(w, "Could not load template", http.StatusInternalServerError)
         return
