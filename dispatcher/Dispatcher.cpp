@@ -86,7 +86,7 @@ int main() {
 
     bot.detectSPIDevices();
 
-    unsigned short port = 8080;
+    unsigned short port = 8081;
     startServer(port, bot);
     return 0;
 }
