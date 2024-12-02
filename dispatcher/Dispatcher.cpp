@@ -5,6 +5,7 @@
 #include <sstream>
 #include <asio.hpp>
 #include <nlohmann/json.hpp>
+
 #include "Board.h"
 #include "Bot.h"
 
@@ -82,6 +83,8 @@ void startServer(unsigned short port, ChessBot& bot) {
 int main() {
     MoveGenerator moveGen;
     ChessBot bot(moveGen);
+
+    bot.detectSPIDevices();
 
     unsigned short port = 8080;
     startServer(port, bot);

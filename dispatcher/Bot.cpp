@@ -10,6 +10,12 @@
 #include <future>
 #include <iostream>
 #include <queue>
+#include <fcntl.h>
+#include <linux/spi/spidev.h>
+#include <sys/ioctl.h>
+#include <string.h>
+#include <unistd.h>
+
 
 #define MAX_DEPTH 3
 #define NEG_INF -100000
@@ -186,4 +192,76 @@ int ChessBot::evaluateBoard(Board* board, tileState player, bool isCapture) {
     }
 
     return score;
+}
+
+std::vector<uint64_t> packageEvalParams(Board* board, tileState player, bool isCapture) {
+    std::vector<uint64_t> boardState;
+    for (int i = 0; i < 12; i++) {
+        boardState.push_back(board->getPiece(static_cast<Board::PieceIndex>(i)));
+    }
+    boardState.push_back(player);
+    boardState.push_back(isCapture);
+
+    return boardState;
+}
+
+void ChessBot::detectSPIDevices() {
+    std::vector<std::string> detectedDevices = {"/dev/spidev0.0"};
+    std::lock_guard<std::mutex> lock(deviceMutex);
+    for (const auto& device : detectedDevices) {
+        availableDevices.push(device);
+    }
+}
+
+bool ChessBot::communicateWithDevice(const std::string& devicePath, const std::vector<uint64_t>& data, int& response) {
+    int fd = open(devicePath.c_str(), O_RDWR);
+    if (fd < 0) {
+        std::cerr << "Error opening SPI device: " << strerror(errno) << std::endl;
+        return false;
+    }
+
+    // SPI transfer setup (mock for now)
+    struct spi_ioc_transfer transfer {};
+    transfer.tx_buf = reinterpret_cast<uintptr_t>(data.data());
+    transfer.rx_buf = reinterpret_cast<uintptr_t>(&response);
+    transfer.len = static_cast<uint32_t>(data.size() * sizeof(uint64_t));
+
+    if (ioctl(fd, SPI_IOC_MESSAGE(1), &transfer) < 0) {
+        std::cerr << "SPI transfer failed: " << strerror(errno) << std::endl;
+        close(fd);
+        return false;
+    }
+
+    close(fd);
+    return true;
+}
+
+int ChessBot::distributedBoardEval(Board* board, tileState player, bool isCapture) {
+    std::unique_lock<std::mutex> lock(deviceMutex);
+    while (availableDevices.empty()) {
+        std::cout << "No devices available, waiting..." << std::endl;
+        deviceAvailable.wait(lock);
+    }
+
+    std::string device = availableDevices.front();
+    availableDevices.pop();
+    lock.unlock();
+
+    int response;
+    std::vector<uint64_t> data = packageEvalParams(board, player, isCapture);
+    bool success = communicateWithDevice(device, data, response);
+
+    lock.lock();
+    availableDevices.push(device);
+    lock.unlock();
+    deviceAvailable.notify_one();
+
+    if (success) {
+        std::cout << "Received response from " << device << ": ";
+        std::cout << response << " " << std::endl;
+        return response;
+    } else {
+        std::cerr << "Failed to communicate with device: " << device << std::endl;
+        return 0;
+    }
 }

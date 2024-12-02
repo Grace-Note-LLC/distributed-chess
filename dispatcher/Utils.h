@@ -4,6 +4,8 @@
 #include <tuple>
 #include <cstdint>
 #include <iostream>
+#include <vector>
+
 #pragma once
 
 enum tileState {

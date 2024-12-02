@@ -3,6 +3,8 @@
 
 #include <limits>
 #include <vector>
+#include <queue>
+#include <condition_variable>
 #include "Board.h"
 #include "Move.h"
 
@@ -12,10 +14,19 @@ public:
     ChessBot(MoveGenerator moveGen) : moveGen(moveGen) {}
 
     std::pair<Move, int> findBestMove(Board* board, tileState player);
+    void detectSPIDevices();
+    bool communicateWithDevice(
+        const std::string& devicePath, 
+        const std::vector<uint64_t>& data, 
+        int& response
+    );
+    int distributedBoardEval(Board* board, tileState player, bool isCapture);
 
 private:
     MoveGenerator moveGen;
-
+    std::mutex deviceMutex;
+    std::condition_variable deviceAvailable;
+    std::queue<std::string> availableDevices;
     /*
     WHITE is always the maximizing player, and BLACK is the minimizing player.
     */
