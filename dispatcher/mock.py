@@ -27,7 +27,7 @@ def send_request(board_state, player):
     })
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.connect(('127.0.0.1', 8080))
+        sock.connect(('127.0.0.1', 8081))
         sock.sendall(request.encode('utf-8') + b'\n')
 
         response = sock.recv(1024).decode('utf-8')

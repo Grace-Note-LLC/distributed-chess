@@ -79,7 +79,7 @@ const Board: React.FC = () => {
             const boardState = pieces.map((piece) => ({
                 image: piece.image,
                 x: piece.x,
-                y: piece.y,
+                y: 7 - piece.y, // need to flip the y-axis to match the backend
             }));
 
             // Make the API call to the Go backend on port 8080
