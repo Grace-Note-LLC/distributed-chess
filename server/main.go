@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 )
 
@@ -100,12 +101,56 @@ func boardStateHandler(w http.ResponseWriter, r *http.Request) {
 
         updateBitboards(pieces)
         printBitboards()
+        getBestMoveHandler(w)
         
         w.Header().Set("Content-Type", "application/json")
         json.NewEncoder(w).Encode(map[string]string{"status": "success"})
     } else {
         http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
     }
+}
+
+func getBestMoveHandler(w http.ResponseWriter) {
+    request := map[string]interface{}{
+        "boardState": map[string]uint64{
+            "WHITE_PAWNS":   whitePawns,
+            "BLACK_PAWNS":   blackPawns,
+            "WHITE_ROOKS":   whiteRooks,
+            "BLACK_ROOKS":   blackRooks,
+            "WHITE_KNIGHTS": whiteKnights,
+            "BLACK_KNIGHTS": blackKnights,
+            "WHITE_BISHOPS": whiteBishops,
+            "BLACK_BISHOPS": blackBishops,
+            "WHITE_QUEEN":   whiteQueen,
+            "BLACK_QUEEN":   blackQueen,
+            "WHITE_KING":    whiteKing,
+            "BLACK_KING":    blackKing,
+        },
+        "player": "BLACK",
+    }
+    fmt.Printf("Sending request to the engine")
+    conn, err := net.Dial("tcp", "127.0.0.1:8081")
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    defer conn.Close()
+
+    err = json.NewEncoder(conn).Encode(request)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    var response map[string]interface{}
+    err = json.NewDecoder(conn).Decode(&response)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(response)
 }
 
 func enableCORS(w http.ResponseWriter) {
