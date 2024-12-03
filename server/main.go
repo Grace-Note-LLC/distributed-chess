@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"math/bits"
 	"net"
 	"net/http"
 )
@@ -128,7 +129,6 @@ func getBestMoveHandler(w http.ResponseWriter) {
         },
         "player": "BLACK",
     }
-    fmt.Printf("Sending request to the engine")
     conn, err := net.Dial("tcp", "127.0.0.1:8081")
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -149,8 +149,48 @@ func getBestMoveHandler(w http.ResponseWriter) {
         return
     }
 
+    fmt.Printf("--Received response from the engine\n")
+    oldPosition, ok := response["oldPosition"].(float64)
+    if !ok {
+        http.Error(w, "Invalid oldPosition format", http.StatusInternalServerError)
+        return
+    }
+    newPosition, ok := response["newPosition"].(float64)
+    if !ok {
+        http.Error(w, "Invalid newPosition format", http.StatusInternalServerError)
+        return
+    }
+    fmt.Printf("--bestMove: %s\n", response["bestMove"])
+    fmt.Printf("--oldPosition: 0x%016X\n", uint64(oldPosition))
+    fmt.Printf("--newPosition: 0x%016X\n", uint64(newPosition))
+    fmt.Printf("--isCheckmate: %t\n", response["isCheckmate"])
+    fmt.Printf("--evalScore: %d\n", response["score"])
+
+    oldX, oldY, err := binIdxToGrid(uint64(oldPosition))
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    newX, newY, err := binIdxToGrid(uint64(newPosition))
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    response["oldPosition"] = map[string]int{"x": oldX, "y": oldY}
+    response["newPosition"] = map[string]int{"x": newX, "y": newY}
+    fmt.Printf("--oldPositionXY: (%d, %d)\n", oldX, oldY)
+    fmt.Printf("--newPositionXY: (%d, %d)\n", newX, newY)
+
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(response)
+}
+
+func binIdxToGrid(bin uint64) (int, int, error) {
+    if bin == 0 {
+        return 0, 0, fmt.Errorf("this piece does not exist on the board; cannot convert to grid index")
+    }
+    index := bits.TrailingZeros64(bin)
+    return index % 8, index / 8, nil
 }
 
 func enableCORS(w http.ResponseWriter) {

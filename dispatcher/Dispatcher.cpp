@@ -47,10 +47,17 @@ void handleClient(tcp::socket socket, ChessBot& bot) {
         std::string playerStr = requestJson.at("player");
         player = (playerStr == "WHITE") ? WHITE : BLACK;
 
-        auto result = bot.findBestMove(board, player);
+        pair<Move, int> result = bot.findBestMove(board, player);
+        Board boardCopy = *board;
+        MoveGenerator moveGen;
+        boardCopy.applyMove(result.first);
+        bool isCheckmate = moveGen.isCheckmate(board, (player == WHITE) ? BLACK : WHITE);
 
         json responseJson = {
             {"bestMove", result.first.getPieceType()},
+            {"oldPosition", result.first.getOldPosition()},
+            {"newPosition", result.first.getNewPosition()},
+            {"isCheckmate", isCheckmate},
             {"score", result.second}
         };
 
