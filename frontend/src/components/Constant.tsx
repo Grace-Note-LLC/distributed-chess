@@ -6,7 +6,8 @@ export const GRID_SIZE = 100;
 export function samePosition(p1: Position, p2){
     return p1.x === p2.x && p1.y === p2.y;
 }
-export interface Piece{
+
+export interface Piece {
     image: string
     position: Position;
     type: PieceType;
@@ -27,8 +28,6 @@ export enum PieceType{
     ROOK,
     QUEEN,
     KING
-
-
 }
 
 export enum TeamType{
@@ -70,8 +69,4 @@ export const intitialBoardState: Piece[] = [
     {image: `images/pieces-basic-svg/pawn-w.svg`, position:{x:5, y:1}, type: PieceType.PAWN, team: TeamType.OUR},
     {image: `images/pieces-basic-svg/pawn-w.svg`, position:{x:6, y:1}, type: PieceType.PAWN, team: TeamType.OUR},
     {image: `images/pieces-basic-svg/pawn-w.svg`, position:{x:7, y:1}, type: PieceType.PAWN, team: TeamType.OUR},
-
-
-
-
 ];

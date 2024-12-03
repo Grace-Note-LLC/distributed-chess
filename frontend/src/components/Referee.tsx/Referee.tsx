@@ -4,8 +4,6 @@ import { pawnMove, knightMove, bishopMove, rookMove, queenMove, kingMove, getPos
 
 export default class Referee {
     
-    
-
     isEnPassantMove(initialPosition: Position, desiredPosition: Position, type: PieceType, team: TeamType, boardState: Piece[]){
         const pawnDirection = team === TeamType.OUR ? 1: -1;
 
@@ -17,12 +15,8 @@ export default class Referee {
                 }
             }
         }
-
-
         return false;
     }
-
-
 
     isValidMove(initialPosition: Position, desiredPosition: Position, type: PieceType, team: TeamType, boardState: Piece[]){
         let validMove = false;

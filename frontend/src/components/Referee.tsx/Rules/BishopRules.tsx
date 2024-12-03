@@ -2,7 +2,7 @@ import { Piece, Position, samePosition, TeamType } from "../../Constant";
 import { tileIsEmptyOrOccupiedByOpponent, tileIsOccupied, tileIsOccupiedByOpponent } from "./GeneralRules";
 
 export const bishopMove = (initialPosition: Position, desiredPosition: Position, team: TeamType, boardState: Piece[]):boolean => {
-    for (let i = 1; i<8; i++){
+    for (let i = 1; i<8; i++) {
         if(desiredPosition.x > initialPosition.x && desiredPosition.y > initialPosition.y){
             let passedPosition: Position = {x: initialPosition.x + i, y: initialPosition.y + i};                    
             if(samePosition(passedPosition, desiredPosition)){
@@ -12,8 +12,7 @@ export const bishopMove = (initialPosition: Position, desiredPosition: Position,
                 } else {
                     if(tileIsOccupied(passedPosition, boardState)){
                         break;
-                    }
-                       
+                    } 
                 }
             }
 
@@ -60,8 +59,8 @@ export const bishopMove = (initialPosition: Position, desiredPosition: Position,
     }
 
 return false;
-}
 
+}
 
 export const getPossibleBishopMoves = (bishop: Piece, boardstate: Piece[]): Position[] => {
     const possibleMoves: Position[] = [];
@@ -121,7 +120,6 @@ export const getPossibleBishopMoves = (bishop: Piece, boardstate: Piece[]): Posi
         break;
       }
     }
-
 
     return possibleMoves;
   }

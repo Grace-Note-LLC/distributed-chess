@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Square from '../components/Square';
 import "./Board.css";
 import Referee from './Referee.tsx/Referee';
 import {row, col, GRID_SIZE, Piece, PieceType, TeamType, intitialBoardState, Position, samePosition} from '../components/Constant'
+import { boardRoutes } from '../services/routes';
 
 
-export default function Board(){
+export default function Board() {
     const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
     const [promotionPawn, setPromotionPawn] = useState<Piece>();
     const [grabPosition, setGrabPosition] = useState<Position>({x:-1, y:-1});
@@ -14,17 +15,16 @@ export default function Board(){
     const modelRef= useRef<HTMLDivElement>(null);
     const referee = new Referee();
     
-    function updateValidMoves(){
-        setPieces((currentPieces) =>{
-            return currentPieces.map(p=>{
+    function updateValidMoves() {
+        setPieces((currentPieces) => {
+            return currentPieces.map(p=> {
                 p.possibleMoves = referee.getValidMove(p, currentPieces);
                 return p;
             });
-
         });
     }
 
-    function grabPiece(e: React.MouseEvent){
+    function grabPiece(e: React.PointerEvent) {
         updateValidMoves();
         const element = e.target as HTMLElement;
         const chessboard = boardRef.current;
@@ -43,9 +43,9 @@ export default function Board(){
 
     }
 
-    function movePiece(e: React.MouseEvent){
+    function movePiece(e: React.PointerEvent){
         const chessboard = boardRef.current;
-        if(activePiece&& chessboard){
+        if(activePiece && chessboard){
             const minX = chessboard.offsetLeft-25;
             const minY = chessboard.offsetTop -25;
             const maxX = chessboard.offsetLeft + chessboard.clientWidth -75;
@@ -76,19 +76,22 @@ export default function Board(){
     
        }
 
-    function dropPiece(e: React.MouseEvent){
+    function dropPiece(e: React.PointerEvent) {
         const chessboard = boardRef.current;
-        if(activePiece && chessboard){
+        if(activePiece && chessboard) {
             const x = Math.floor((e.clientX - chessboard.offsetLeft)/GRID_SIZE);
             const y = Math.abs(Math.ceil((e.clientY - chessboard.offsetTop - 800)/GRID_SIZE));
+
+            if (samePosition(grabPosition, {x, y})) {
+                setActivePiece(null);
+                return;
+            }
 
             const currentPiece = pieces.find((p) => samePosition(p.position, grabPosition));
             
             if(currentPiece){
                 const validMove = referee.isValidMove(grabPosition, {x, y}, currentPiece?.type, currentPiece?.team, pieces);
-                
                 const isEnPassantMove = referee.isEnPassantMove(grabPosition, {x, y}, currentPiece.type, currentPiece.team, pieces);
-
                 const pawnDirection = currentPiece.team === TeamType.OUR ? 1: -1;
                 
                 if(isEnPassantMove){
@@ -106,9 +109,9 @@ export default function Board(){
                         }
                         return results;
                     }, [] as Piece[])
-
+                    boardRoutes.sendBoardState(pieces);
                     setPieces(updatePieces);
-                } else if(validMove){
+                } else if(validMove) {
                     const updatedPieces = pieces.reduce((results, piece) => {
                         if (samePosition(piece.position, grabPosition)){
                             //special move
@@ -118,7 +121,7 @@ export default function Board(){
                             piece.position.y = y;
 
                             let promotionRow = (piece.team == TeamType.OUR ? 7:0);
-                            if(y === promotionRow && piece.type === PieceType.PAWN){
+                            if (y === promotionRow && piece.type === PieceType.PAWN) {
                                 modelRef.current?.classList.remove("hidden");
                                 setPromotionPawn(piece);
                             }
@@ -132,20 +135,20 @@ export default function Board(){
 
                         return results;
                     }, [] as Piece[]);
-
+                    boardRoutes.sendBoardState(pieces);
                     setPieces(updatedPieces);
                 } else{
+                    boardRoutes.sendBoardState(pieces);
                     activePiece.style.position = 'relative';
                     activePiece.style.removeProperty('top');
                     activePiece.style.removeProperty('left');
                 }
                 }
-
             setActivePiece(null);
         }
     }
 
-    function promotePawn(pieceType: PieceType){
+    function promotePawn(pieceType: PieceType) {
         if(promotionPawn === undefined){
             return;
         }
@@ -215,11 +218,12 @@ export default function Board(){
             </div>
         </div>
             <div
-                onMouseMove= {(e) => movePiece(e)}
-                onMouseDown= {e => grabPiece(e)} 
-                onMouseUp = {(e) => dropPiece(e)}
+                onPointerMove={(e) => movePiece(e)}
+                onPointerDown={e => grabPiece(e)} 
+                onPointerUp={(e) => dropPiece(e)}
                 id = "board"
                 ref = {boardRef}
+                style={{ touchAction: 'none' }}
             >
                 {board}
             </div>

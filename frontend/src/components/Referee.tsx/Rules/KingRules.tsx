@@ -2,7 +2,7 @@ import { Piece, Position, samePosition, TeamType } from "../../Constant";
 import { tileIsEmptyOrOccupiedByOpponent, tileIsOccupied, tileIsOccupiedByOpponent } from "./GeneralRules";
 
 export const kingMove =(initialPosition: Position, desiredPosition: Position, team: TeamType, boardState: Piece[]):boolean => {
-    for(let i =1; i<2; i++){
+    for(let i =1; i<2; i++) {
 
         //diagonal
         let multiplierX = (desiredPosition.x < initialPosition.x) ? -1 : (desiredPosition.x > initialPosition.x) ? 1:0;
