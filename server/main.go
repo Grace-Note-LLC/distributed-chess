@@ -8,11 +8,9 @@ import (
 
 type Piece struct {
 	Image string `json:"image"`
-	X     int    `json:"x"`
-	Y     int    `json:"y"`
+    Position map[string]int `json:"position"`
 }
 
-// Define bitboards for each piece type
 var (
     whitePawns   uint64
     blackPawns   uint64
@@ -28,45 +26,43 @@ var (
     blackKing    uint64
 )
 
-// Calculate bit index from board coordinates
 func getBitIndex(x, y int) uint64 {
-    return uint64(y*8 + x)
+    return uint64(y * 8 + x)
 }
 
 func updateBitboards(pieces []Piece) {
-    // Reset all bitboards
+    // reset all bitboards
     whitePawns, whiteRooks, whiteKnights, whiteBishops, whiteQueen, whiteKing = 0, 0, 0, 0, 0, 0
     blackPawns, blackRooks, blackKnights, blackBishops, blackQueen, blackKing = 0, 0, 0, 0, 0, 0
 
-    // Iterate over each piece and update the corresponding bitboard
     for _, piece := range pieces {
-        bitIndex := getBitIndex(piece.X, piece.Y)
+        bitIndex := getBitIndex(piece.Position["x"], piece.Position["y"])
         bitMask := uint64(1) << bitIndex
 
         switch piece.Image {
-        case "/images/pieces-basic-svg/pawn-b.svg":
+        case "images/pieces-basic-svg/pawn-b.svg":
             blackPawns |= bitMask
-        case "/images/pieces-basic-svg/rook-b.svg":
+        case "images/pieces-basic-svg/rook-b.svg":
             blackRooks |= bitMask
-        case "/images/pieces-basic-svg/knight-b.svg":
+        case "images/pieces-basic-svg/knight-b.svg":
             blackKnights |= bitMask
-        case "/images/pieces-basic-svg/bishop-b.svg":
+        case "images/pieces-basic-svg/bishop-b.svg":
             blackBishops |= bitMask
-        case "/images/pieces-basic-svg/queen-b.svg":
+        case "images/pieces-basic-svg/queen-b.svg":
             blackQueen |= bitMask
-        case "/images/pieces-basic-svg/king-b.svg":
+        case "images/pieces-basic-svg/king-b.svg":
             blackKing |= bitMask
-        case "/images/pieces-basic-svg/pawn-w.svg":
+        case "images/pieces-basic-svg/pawn-w.svg":
             whitePawns |= bitMask
-        case "/images/pieces-basic-svg/rook-w.svg":
+        case "images/pieces-basic-svg/rook-w.svg":
             whiteRooks |= bitMask
-        case "/images/pieces-basic-svg/knight-w.svg":
+        case "images/pieces-basic-svg/knight-w.svg":
             whiteKnights |= bitMask
-        case "/images/pieces-basic-svg/bishop-w.svg":
+        case "images/pieces-basic-svg/bishop-w.svg":
             whiteBishops |= bitMask
-        case "/images/pieces-basic-svg/queen-w.svg":
+        case "images/pieces-basic-svg/queen-w.svg":
             whiteQueen |= bitMask
-        case "/images/pieces-basic-svg/king-w.svg":
+        case "images/pieces-basic-svg/king-w.svg":
             whiteKing |= bitMask
         }
     }
