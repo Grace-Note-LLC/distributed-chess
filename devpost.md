@@ -1,5 +1,9 @@
 # junkfish
 
+## What it does
+
+Junkfish is a distributed system of microcontrollers harvested from recycled smart devices working together to power a chess engine. Anyone can connect to the front end web application and play a game against a variety of hardware products sourced from Temu and Amazon, such as smart lightbulbs, a smart switch, or smart camera.
+
 ## Inspiration
 
 We were inspired by how chess bots were able to understand the game from a mathematical standpoint and perform complex tasks and strategies.
@@ -11,11 +15,6 @@ We were inspired by how chess bots were able to understand the game from a mathe
 - We wanted to deepen our understanding of distributed systems, algorithms, and optimization while gaining experience in designing scalable and resilient architectures.
 
 - We found it enjoyable to combine a passion for chess with cutting-edge technology. Playing against the chess bot was pretty awesome! Plus, creating a bot that performs well despite limited resources demonstrates ingenuity and could spark broader applications.
-
-## What it does
-
-Junkfish is a distributed system of microcontrollers harvested from recycled smart devices working together to power a chess engine. Anyone can connect to the front end server and play a
- built around as a vacation themed service where you can connect low-power recycled devices on the go to play against a chess bot. It uses distributed computing to calculate the best move possible for the chessbot.
 
 ## How we built it
 
@@ -42,7 +41,6 @@ The firmware is written in C, and adapted to different hardware devices such tha
 
 It should be noted that each of these devices needed to be reverse engineered so that the custom board evaluation and SPI communication firmware could be flashed onto the microcontroller. To accomplish this, we physically opened each device to expose the debug pins on the MCU, powered it, and then sent commands to flash the device over UART.
 
-
 ## Challenges we ran into
 
 ### Frontend
@@ -60,11 +58,11 @@ A lot of our time went into reading chess theory and the Minimax theory. We knew
 
 There were a lot of bugs, such as:
 - sometimes the bot would play the worst possible move
+- the king could be captured
 - the MoveGenerator would generate impossible moves
-- the bot would sometimes make very obviously bad moves
 - the bot would take a long time to find an optimal move
 - if there was no move possible, the bot was unable to recognize it was at a checkmate or stalemate
-- lack of collision detection
+- lack of collision (capture) detection
 - statefulness broke Board responsibility
 - capturing was not properly removing the pieces
 - bot did not consider forced checkmates
@@ -80,9 +78,9 @@ There were a lot of bugs, such as:
 - lack of documentation for kernel functions
 - printing the board lacked font support for certain Unicode characters
 - memory leak issues
+- and many more!
 
 We fixed these by implementing over 100 unit tests with > 95% code coverage.
-
 
 ### Team Development
 - This quarter was a rough quarter. Our team had very busy schedules, so we worked almost entirely asynchronously. We had weekly stand ups and meetings about what we did for the team.
@@ -94,17 +92,17 @@ We fixed these by implementing over 100 unit tests with > 95% code coverage.
 | Name    | Contributions |
 |---------|--------------------------|
 | Kyle    | Built an entire chess engine + bot + algorithm from scratch, developed highly scalable back end, developed APIs between all systems/servers, managed to pull together the team last minute |
-| Cody    |  |
+| Cody    |  Developed the firmware for the smart devices and supported development of the chess engine. |
 | Anusha  | Frontend of a chess website from scratch, used new languages– TypeScript, React, CSS for the first time, designed scalable and maintainable code, integrated state management with React hooks to handle real-time updates including move animations and game status tracking, connected the frontend and backend for multiplayer functionality |
 | Jeremy  | Supported device build-up, HW/SW integration and debugging |
-| Matthew |  |
-| Gowtham |  |            
+| Matthew | Front-end developer |
+| Gowtham | Gowtham |            
 ## What we learned
 
 | Name    | What We Learned |
 |---------|--------------------------|
 |Kyle| Golang still remains the second most beautiful language. Golang >> Python >>>> C++ > JS/TS. Also I love Makefiles! |
-|Cody| |
+|Cody| Reverse engineering, hardware hacking, bare-metal firmware development with toolchains |
 |Anusha| React, TypeScript, and CSS, breaking down a user interface into reusable components, state management using React hooks, static typing through TypeScript, how to connect backend to frontend |
 |Jeremy| Embedded software development on Linux  |
 |Matthew| | 
@@ -113,5 +111,3 @@ We fixed these by implementing over 100 unit tests with > 95% code coverage.
 ## What's next for junkfish
 
 - Beat Magnus Carlsen
-- Achieve > 400 elo
--- Solve the Riemann Hypothesis
