@@ -12,17 +12,17 @@ We were inspired by how chess bots were able to understand the game from a mathe
 
 - We found it enjoyable to combine a passion for chess with cutting-edge technology. Playing against the chess bot was pretty awesome! Plus, creating a bot that performs well despite limited resources demonstrates ingenuity and could spark broader applications.
 
-## What it does [TODO REVISE]
+## What it does
 
-Junkfish is a webapp built around as a vacation themed service where you can connect low-power recycled devices on the go to play against a chess bot. It uses distributed computing to calculate the best move possible for the chessbot. 
+Junkfish is a distributed system of microcontrollers harvested from recycled smart devices working together to power a chess engine. Anyone can connect to the front end server and play a
+ built around as a vacation themed service where you can connect low-power recycled devices on the go to play against a chess bot. It uses distributed computing to calculate the best move possible for the chessbot.
 
 ## How we built it
 
-Junkfish is made up of 4 parts:
+Junkfish is made up of 5 parts:
 
 ### Frontend
-The front end of the chess website was developed using TypeScript and React, ensuring a robust and dynamic user experience. React provided the flexibility to create reusable components, such as the chessboard, individual pieces, and game controls, which streamlined development and maintenance. Using TypeScript added the benefit of static typing, catching errors early and improving code reliability, especially for complex features like move validation and dynamic piece rendering. The chessboard was implemented as an interactive grid where users could drag and drop pieces, with visual cues highlighting legal moves and selected pieces. State management, powered by React hooks, ensured smooth updates for real-time gameplay, including move animations, timers, and status indicators. The front end communicated with the backend through REST APIs or WebSockets, enabling multiplayer functionality and saving game states. Overall, TypeScript and React combined to deliver a responsive, visually appealing, and user-friendly interface for chess enthusiasts.
-
+The front end of the chess website was developed using TypeScript and React, ensuring a robust and dynamic user experience. React provided the flexibility to create reusable components, such as the chessboard, individual pieces, and game controls, which streamlined development and maintenance. Using TypeScript added the benefit of static typing, catching errors early and improving code reliability, especially for complex features like move validation and dynamic piece rendering. The chessboard was implemented as an interactive grid where users could drag and drop pieces, with visual cues highlighting legal moves and selected pieces. State management, powered by React hooks, ensured smooth updates for real-time gameplay, including move animations, timers, and status indicators. The front end communicated with the backend through REST APIs or WebSockets, enabling multiplayer functionality and saving game states. 
 
 ### Golang-based Backend
 We implemented the backend in Golang because we wanted to try out a new programming language that was high performance, good for scaling, and had very robust error handling. Along the way, we learned about networking, Cross Origin Resource Sharing, REST APIs, and data processing.
@@ -38,12 +38,17 @@ At the core of Junkfish's chess engine lies the Minimax algorithm, which evaluat
 To enhance its efficiency in a distributed environment, we integrated alpha-beta pruning. This optimization significantly reduces the number of nodes the algorithm evaluates by eliminating branches that cannot influence the final decision, ensuring faster computations and better performance across the distributed system. 
 
 ### Firmware 
-The firmware is written in C, and adapted to different hardware devices such that each work togethers synchronously. When a player makes a move, the AI move generation pipeline is kicked off, and the data is passed to the backend. From there, the Pi does some
+The firmware is written in C, and adapted to different hardware devices such that each works together synchronously. When a player makes a move, the AI move generation pipeline is kicked off, and the data is passed to the backend. From there, the engine checks whether a checkmate or stalemate has been reached, and then generates a list of all possible moves. The minimax algorithm is run on those moves, and each unique board state is send as needed to an available smart device over SPI for scoring. The smart device then evaluates the current score of the board based on a variety of factors including mobility, material balance, whether the move was a capture, etc.
+
+It should be noted that each of these devices needed to be reverse engineered so that the custom board evaluation and SPI communication firmware could be flashed onto the microcontroller. To accomplish this, we physically opened each device to expose the debug pins on the MCU, powered it, and then sent commands to flash the device over UART.
+
 
 ## Challenges we ran into
 
 ### Frontend
-On the frontend one of the biggest hurdles was debugging intricate issues in the game's logic, such as accurately implementing the rules for special moves like castling and en passant. These bugs often required meticulous review of the code. Time management was another challenge, as balancing development tasks with other commitments meant juggling priorities and making sacrifices. Additionally, there were moments of frustration when we got stuck, particularly while designing an efficient algorithm for move validation and game state tracking. To overcome these obstacles, we broke tasks into smaller, manageable pieces, set clear daily goals, and leveraged online resources like forums and documentation. Debugging became easier as we adopted a more systematic approach, using test cases to isolate issues. 
+On the frontend one of the biggest hurdles was debugging issues with the game's logic, such as accurately implementing the rules for special moves like castling and en-passant. These bugs often required caareful review of the code and unit tests. 
+
+Time management was another challenge, as balancing development tasks with other commitments meant juggling priorities and making sacrifices. Additionally, there were moments of frustration when we got stuck, particularly while designing an efficient algorithm for move validation and game state tracking. To overcome these obstacles, we broke tasks into smaller, manageable pieces, set clear daily goals, and leveraged online resources like forums and documentation. Debugging became easier as we adopted a more systematic approach, using test cases to isolate issues. 
 
 When stuck, we found that taking breaks and revisiting the problem with a new perspective often led to new ideas.
 
@@ -54,6 +59,7 @@ The backend went fairly seamlessly. The only problem we had was the Cross Origin
 A lot of our time went into reading chess theory and the Minimax theory. We knew that Minimax would work if designed properly, so there was a good relationship between board evaluation and elo. 
 
 There were a lot of bugs, such as:
+- sometimes the bot would play the worst possible move
 - the MoveGenerator would generate impossible moves
 - the bot would sometimes make very obviously bad moves
 - the bot would take a long time to find an optimal move
@@ -61,18 +67,19 @@ There were a lot of bugs, such as:
 - lack of collision detection
 - statefulness broke Board responsibility
 - capturing was not properly removing the pieces
-- memory leak issues
 - bot did not consider forced checkmates
 - alphabeta did not properly prune branches that did were clearly unoptimal
 - some pieces assumed they could jump over other pieces
 - score was not being implemented properly
 - pawns did not promote properly and update the queen state
 - heuristic failed when certain pieces were going in a different direction
-- board eval was too simplistic
+- board eval was too simplistic and would not capture important information like tempo
 - compiler optimizations could break certain parts of the algorithm
 - multithreaded operations could cause deadlock/massive slowdowns
 - dependency issues (in particular gtest.h)
 - lack of documentation for kernel functions
+- printing the board lacked font support for certain Unicode characters
+- memory leak issues
 
 We fixed these by implementing over 100 unit tests with > 95% code coverage.
 
@@ -84,22 +91,27 @@ We fixed these by implementing over 100 unit tests with > 95% code coverage.
 
 ## Accomplishments that we're proud of
 
-- Kyle: Built an entire chess engine + bot + algorithm from scratch, developed highly scalable back end, developed APIs between all systems/servers, managed to pull together the team last minute
-- Cody: 
-- Anusha: Frontend of a chess website from scratch, used new languages– typescript, react, css for the first time, designed scalable and maintainable code, integrated state management with React hooks to handle real-time updates including move animations and game status tracking connected the frontend and backend for multiplayer functionality
-- Jeremy:
-- Matthew:
-- Gowtham:
-
+| Name    | Contributions |
+|---------|--------------------------|
+| Kyle    | Built an entire chess engine + bot + algorithm from scratch, developed highly scalable back end, developed APIs between all systems/servers, managed to pull together the team last minute |
+| Cody    |  |
+| Anusha  | Frontend of a chess website from scratch, used new languages– TypeScript, React, CSS for the first time, designed scalable and maintainable code, integrated state management with React hooks to handle real-time updates including move animations and game status tracking, connected the frontend and backend for multiplayer functionality |
+| Jeremy  | Supported device build-up, HW/SW integration and debugging |
+| Matthew |  |
+| Gowtham |  |            
 ## What we learned
 
-- Kyle: Golang still remains the most beautiful language. Golang >> Python >>>> C++ > JS/TS. Also I love Makefiles.
-- Cody:
-- Anusha: React, TypeScript, and CSS, breaking down a user interface into reusable components, state management using React hooks, static typing through TypeScript, how to connect backend to frontend
-- Jeremy:
-- Matthew:
-- Gowtham:
+| Name    | What We Learned |
+|---------|--------------------------|
+|Kyle| Golang still remains the second most beautiful language. Golang >> Python >>>> C++ > JS/TS. Also I love Makefiles! |
+|Cody| |
+|Anusha| React, TypeScript, and CSS, breaking down a user interface into reusable components, state management using React hooks, static typing through TypeScript, how to connect backend to frontend |
+|Jeremy| Embedded software development on Linux  |
+|Matthew| | 
+|Gowtham| How we can leverage REST API development to reuse existing work! |
 
 ## What's next for junkfish
 
-Beat Magnus Carlsen
+- Beat Magnus Carlsen
+- Achieve > 400 elo
+-- Solve the Riemann Hypothesis
