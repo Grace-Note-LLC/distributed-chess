@@ -1,0 +1,37 @@
+.abandon-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+  background-color: #242424;
+}
+
+.abandon-page h1 {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  color: #ff4444;
+}
+
+.abandon-page p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #888888;
+}
+
+.abandon-page button {
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  background-color: #646cff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.abandon-page button:hover {
+  background-color: #535bf2;
+} 
