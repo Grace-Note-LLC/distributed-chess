@@ -105,7 +105,7 @@ We fixed these by implementing over 100 unit tests with > 95% code coverage.
 |Cody| Reverse engineering, hardware hacking, bare-metal firmware development with toolchains |
 |Anusha| React, TypeScript, and CSS, breaking down a user interface into reusable components, state management using React hooks, static typing through TypeScript, how to connect backend to frontend |
 |Jeremy| Embedded software development on Linux  |
-|Matthew| | 
+|Matthew| Frontend + GenAI Integrated Development | 
 |Gowtham| How we can leverage REST API development to reuse existing work! Also using the gtest library and just c in general |
 
 ## What's next for junkfish
