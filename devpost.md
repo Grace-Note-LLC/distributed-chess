@@ -96,7 +96,7 @@ We fixed these by implementing over 100 unit tests with > 95% code coverage.
 | Anusha  | Frontend of a chess website from scratch, used new languages– TypeScript, React, CSS for the first time, designed scalable and maintainable code, integrated state management with React hooks to handle real-time updates including move animations and game status tracking, connected the frontend and backend for multiplayer functionality |
 | Jeremy  | Supported device build-up, HW/SW integration and debugging |
 | Matthew | Front-end developer |
-| Gowtham | Gowtham |            
+| Gowtham | Tested and made sure the chess engine produced the correct moves for each piece; For instance can the queen move to legal and valid spaces on the board. Elo calculations for the chess engine compared to various bots with known elos. |            
 ## What we learned
 
 | Name    | What We Learned |
@@ -106,7 +106,7 @@ We fixed these by implementing over 100 unit tests with > 95% code coverage.
 |Anusha| React, TypeScript, and CSS, breaking down a user interface into reusable components, state management using React hooks, static typing through TypeScript, how to connect backend to frontend |
 |Jeremy| Embedded software development on Linux  |
 |Matthew| | 
-|Gowtham| How we can leverage REST API development to reuse existing work! |
+|Gowtham| How we can leverage REST API development to reuse existing work! Also using the gtest library and just c in general |
 
 ## What's next for junkfish
 
