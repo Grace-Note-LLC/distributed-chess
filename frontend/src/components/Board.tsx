@@ -76,7 +76,7 @@ export default function Board() {
     
        }
 
-    function dropPiece(e: React.PointerEvent) {
+    async function dropPiece(e: React.PointerEvent) {
         const chessboard = boardRef.current;
         if(activePiece && chessboard) {
             const x = Math.floor((e.clientX - chessboard.offsetLeft)/GRID_SIZE);
@@ -112,6 +112,22 @@ export default function Board() {
                     boardRoutes.sendBoardState(pieces);
                     setPieces(updatePieces);
                 } else if(validMove) {
+                    let response = await boardRoutes.sendBoardState(pieces);
+                    if (response['isCheckmate']) {
+                        alert("Checkmate! Game Over");
+                    }
+                    const oldPosition = { x: response['oldPosition']['x'], y: response['oldPosition']['y'] };
+                    const newPosition = { x: response['newPosition']['x'], y: response['newPosition']['y'] };
+
+                    const updatedPiecesBot = pieces.map(piece => {
+                        if (samePosition(piece.position, oldPosition)) {
+                            piece.position = newPosition;
+                        }
+                        return piece;
+                    });
+
+                    setPieces(updatedPiecesBot);
+
                     const updatedPieces = pieces.reduce((results, piece) => {
                         if (samePosition(piece.position, grabPosition)){
                             //special move
@@ -135,7 +151,7 @@ export default function Board() {
 
                         return results;
                     }, [] as Piece[]);
-                    boardRoutes.sendBoardState(pieces);
+                    
                     setPieces(updatedPieces);
                 } else{
                     boardRoutes.sendBoardState(pieces);

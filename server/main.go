@@ -105,7 +105,7 @@ func boardStateHandler(w http.ResponseWriter, r *http.Request) {
         getBestMoveHandler(w)
         
         w.Header().Set("Content-Type", "application/json")
-        json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+        // json.NewEncoder(w).Encode(map[string]string{"status": "success"})
     } else {
         http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
     }
