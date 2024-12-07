@@ -227,3 +227,13 @@ TEST_F(AITest, DoNotHangKnight) {
         ASSERT_NE(toPos, make_tuple(4, 4));
     }
 }
+
+TEST_F(AITest, DistributedEvalBasic) {
+    board->fillStandard();
+    ai->detectSPIDevices();
+    int result = -1;
+    result = ai->distributedBoardEval(board, WHITE, true);
+
+    // Assert that some new result has been received
+    ASSERT_NE(result, -1);
+}

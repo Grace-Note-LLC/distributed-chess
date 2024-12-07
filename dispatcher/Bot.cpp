@@ -15,6 +15,7 @@
 #include <sys/ioctl.h>
 #include <string.h>
 #include <unistd.h>
+#include <chrono>
 
 
 #define MAX_DEPTH 3
@@ -52,7 +53,9 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
     for (const auto& move : possibleMoves) {
         Board copy = *board;
         copy.applyMove(move);
-        int score = evaluateBoard(&copy, player, move.isCapture());
+        // int score = evaluateBoard(&copy, player, move.isCapture());
+        int score = distributedBoardEval(&copy, player, move.isCapture());
+
         moveQueue.push(make_pair(score, move));
     }
 
@@ -103,7 +106,10 @@ pair<Move, int> ChessBot::findBestMove(Board* board, tileState player) {
 
 int ChessBot::minimax(Board* board, int depth, int alpha, int beta, tileState player, Move m) {
     auto isOver = moveGen.isCheckmate(board, player);
-    if (depth == 0 || isOver) { return evaluateBoard(board, player, m.isCapture()); }
+    if (depth == 0 || isOver) { 
+        // return evaluateBoard(board, player, m.isCapture());
+        return distributedBoardEval(board, player, m.isCapture());
+    }
 
     vector<Move> possibleMoves = moveGen.generateAllMoves(*board, player);
 
@@ -199,6 +205,8 @@ std::vector<uint64_t> packageEvalParams(Board* board, tileState player, bool isC
     for (int i = 0; i < 12; i++) {
         boardState.push_back(board->getPiece(static_cast<Board::PieceIndex>(i)));
     }
+
+    // kyle wtf is going on here
     boardState.push_back(player);
     boardState.push_back(isCapture);
 
@@ -206,8 +214,8 @@ std::vector<uint64_t> packageEvalParams(Board* board, tileState player, bool isC
 }
 
 void ChessBot::detectSPIDevices() {
-    std::vector<std::string> detectedDevices = {"/dev/spidev0.0"};
     std::lock_guard<std::mutex> lock(deviceMutex);
+    std::vector<std::string> detectedDevices = {"/dev/spidev0.0"};
     for (const auto& device : detectedDevices) {
         availableDevices.push(device);
     }
@@ -220,11 +228,18 @@ bool ChessBot::communicateWithDevice(const std::string& devicePath, const std::v
         return false;
     }
 
+    // Set SPI max speed
+    uint32_t speed = 8000000;
+    ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
+    ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
+
     // SPI transfer setup (mock for now)
     struct spi_ioc_transfer transfer {};
     transfer.tx_buf = reinterpret_cast<uintptr_t>(data.data());
-    transfer.rx_buf = reinterpret_cast<uintptr_t>(&response);
+    // transfer.rx_buf = reinterpret_cast<uintptr_t>(&response);
     transfer.len = static_cast<uint32_t>(data.size() * sizeof(uint64_t));
+
+    cout << "STARTING SPI TRANSFER" << endl;
 
     if (ioctl(fd, SPI_IOC_MESSAGE(1), &transfer) < 0) {
         std::cerr << "SPI transfer failed: " << strerror(errno) << std::endl;
@@ -232,29 +247,53 @@ bool ChessBot::communicateWithDevice(const std::string& devicePath, const std::v
         return false;
     }
 
+    sleep(1);
+
+    uint8_t temp[5] = {0};
+    read(fd, temp, sizeof(temp));
+
+    // for (int i = 0; i < 5; i++) {
+    //     cout << hex << +(temp[i]) << " ";
+    // }
+    // cout << endl;
+
+    memcpy(&response, temp+1, 4);
+
     close(fd);
     return true;
 }
 
 int ChessBot::distributedBoardEval(Board* board, tileState player, bool isCapture) {
-    std::unique_lock<std::mutex> lock(deviceMutex);
-    while (availableDevices.empty()) {
-        std::cout << "No devices available, waiting..." << std::endl;
-        deviceAvailable.wait(lock);
-    }
+    lock_guard<mutex> lock(deviceMutex);
+    // while (availableDevices.empty()) {
+    //     std::cout << "No devices available, waiting..." << std::endl;
+    //     deviceAvailable.wait(lock);
+    // }
 
-    std::string device = availableDevices.front();
+    cout << "AVAILABLE DEVICES: " << availableDevices.front() << endl;
+    string device = availableDevices.front();
+    cout << "device before: " << device << endl;
     availableDevices.pop();
-    lock.unlock();
+    // cout << "device after: " << device << endl;
 
     int response;
-    std::vector<uint64_t> data = packageEvalParams(board, player, isCapture);
+    vector<uint64_t> data = packageEvalParams(board, player, isCapture);
     bool success = communicateWithDevice(device, data, response);
 
-    lock.lock();
-    availableDevices.push(device);
-    lock.unlock();
-    deviceAvailable.notify_one();
+    srand(chrono::system_clock::to_time_t(chrono::system_clock::now()));
+
+    // god help us
+    response = rand() % 300;
+    if (rand() % 2 == 0) {
+        response *= -1;
+    }
+
+    // cout << "queue size: " << availableDevices.size() << endl;
+    // cout << "device: " << device << endl;
+    // availableDevices.push(device);
+    // cout << "pushed" << endl;
+    // deviceAvailable.notify_one();
+    device = "[LIGHTBULB_TUYA_1]";
 
     if (success) {
         std::cout << "Received response from " << device << ": ";
