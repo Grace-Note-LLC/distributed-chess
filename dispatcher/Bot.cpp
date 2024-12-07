@@ -265,7 +265,7 @@ bool ChessBot::communicateWithDevice(const std::string& devicePath, const std::v
 }
 
 int ChessBot::distributedBoardEval(Board* board, tileState player, bool isCapture) {
-    lock_guard<mutex> lock(deviceMutex);
+    unique_lock<mutex> lock(deviceMutex);
     // while (availableDevices.empty()) {
     //     std::cout << "No devices available, waiting..." << std::endl;
     //     deviceAvailable.wait(lock);
