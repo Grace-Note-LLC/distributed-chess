@@ -194,11 +194,14 @@ int ChessBot::evaluateBoard(Board* board, tileState player, bool isCapture) {
     return score;
 }
 
-std::vector<uint64_t> packageEvalParams(Board* board, tileState player, bool isCapture) {
+std::vector<uint64_t> packageEvalParams(Board* board, int numWhiteMoves, int numBlackMoves, tileState player, bool isCapture) {
     std::vector<uint64_t> boardState;
     for (int i = 0; i < 12; i++) {
         boardState.push_back(board->getPiece(static_cast<Board::PieceIndex>(i)));
     }
+    // todo push whiteNumMoves and blackNumMoves
+    boardState.push_back(numWhiteMoves);
+    boardState.push_back(numBlackMoves);
     boardState.push_back(player);
     boardState.push_back(isCapture);
 
@@ -247,8 +250,11 @@ int ChessBot::distributedBoardEval(Board* board, tileState player, bool isCaptur
     availableDevices.pop();
     lock.unlock();
 
+    vector<Move> whiteMoves = moveGen.generateAndFilterMoves(board, WHITE);
+    vector<Move> blackMoves = moveGen.generateAndFilterMoves(board, BLACK);
+
     int response;
-    std::vector<uint64_t> data = packageEvalParams(board, player, isCapture);
+    std::vector<uint64_t> data = packageEvalParams(board, whiteMoves.size(), blackMoves.size(), player, isCapture);
     bool success = communicateWithDevice(device, data, response);
 
     lock.lock();
